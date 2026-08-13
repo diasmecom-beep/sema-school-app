@@ -12,7 +12,7 @@ export default function AnnouncementBar() {
             <Image src="/images/logo.png" alt="Sema" fill className="object-contain object-left" />
             <svg
               viewBox="0 0 60 50"
-              className="absolute -bottom-1 -right-1 h-11 w-14"
+              className="absolute -bottom-8 -right-1 h-11 w-14"
               aria-hidden="true"
             >
               <path
@@ -31,7 +31,7 @@ export default function AnnouncementBar() {
               <circle cx="28" cy="28" r="1.8" fill="white" className="animate-typing-dot [animation-delay:0.4s]" />
             </svg>
           </div>
-          <span className="hidden sm:block text-xs italic font-body text-cream/90 leading-tight -mt-1 ml-1">
+          <span className="hidden sm:block text-sm italic font-body text-cream/90 leading-tight mt-9 ml-1">
             cours de langue en ligne
           </span>
         </a>
