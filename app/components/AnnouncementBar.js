@@ -31,7 +31,7 @@ export default function AnnouncementBar() {
               <circle cx="28" cy="28" r="1.8" fill="white" className="animate-typing-dot [animation-delay:0.4s]" />
             </svg>
           </div>
-          <span className="hidden sm:block text-sm italic font-body text-cream/90 leading-tight mt-6 ml-1">
+          <span className="block text-sm italic font-body text-cream/90 leading-tight mt-6 ml-1">
             cours de langue en ligne
           </span>
         </a>
