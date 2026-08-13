@@ -4,7 +4,7 @@ export default function Hero() {
       <div className="max-w-7xl mx-auto px-6 py-20 md:py-28 grid md:grid-cols-2 gap-14 items-center">
         <div>
           <h1 className="font-display font-extrabold text-3xl md:text-4xl leading-tight tracking-tight">
-            ici tu apprends et pratiques
+            Ici tu apprends et pratiques
             <br />
             <em className="italic">le LINGALA</em>, <em className="italic">le SWAHILI</em>,
             <br />

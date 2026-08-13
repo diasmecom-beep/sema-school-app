@@ -7,17 +7,27 @@ export default function AnnouncementBar() {
   return (
     <div className="bg-sage-800 text-cream">
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-6">
-        <a href="/" className="flex items-center gap-3 shrink-0">
-          <div className="relative h-11 w-11 shrink-0">
-            <Image src="/images/logo.png" alt="Sema" fill className="object-contain" />
-            <div className="absolute -top-1.5 -right-2.5 h-4 w-4 rounded-full bg-teal-400 flex items-center justify-center gap-[1.5px]">
-              <span className="h-[3px] w-[3px] rounded-full bg-white animate-bounce [animation-delay:-0.3s]" />
-              <span className="h-[3px] w-[3px] rounded-full bg-white animate-bounce [animation-delay:-0.15s]" />
-              <span className="h-[3px] w-[3px] rounded-full bg-white animate-bounce" />
-            </div>
-            <div className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full bg-terracotta-600" />
+        <a href="/" className="flex items-center gap-2 shrink-0">
+          <div className="relative h-9 w-24 shrink-0">
+            <Image src="/images/logo.png" alt="Sema" fill className="object-contain object-left" />
           </div>
-          <span className="hidden sm:block text-xs font-body text-cream/90 leading-tight">
+          <svg viewBox="0 0 60 50" className="h-8 w-10 shrink-0" aria-hidden="true">
+            <path
+              d="M46 4c7.7 0 14 5.6 14 12.5S53.7 29 46 29c-1.3 0-2.6-.2-3.8-.5l-6.2 3.5 1.4-6.3C34.3 23.4 32 20.2 32 16.5 32 9.6 38.3 4 46 4Z"
+              fill="#C53D0E"
+            />
+            <circle cx="41.5" cy="16" r="1.8" fill="white" className="animate-bounce [animation-delay:-0.3s]" />
+            <circle cx="46.5" cy="16" r="1.8" fill="white" className="animate-bounce [animation-delay:-0.15s]" />
+            <circle cx="51.5" cy="16" r="1.8" fill="white" className="animate-bounce" />
+            <path
+              d="M23 15c8.3 0 15 6 15 13.5S31.3 42 23 42c-1.4 0-2.7-.2-4-.5l-6.7 4 1.6-6.9C10 36.2 8 32.5 8 28.5 8 21 14.7 15 23 15Z"
+              fill="#61C3B6"
+            />
+            <circle cx="18" cy="28" r="1.8" fill="white" className="animate-bounce [animation-delay:-0.3s]" />
+            <circle cx="23" cy="28" r="1.8" fill="white" className="animate-bounce [animation-delay:-0.15s]" />
+            <circle cx="28" cy="28" r="1.8" fill="white" className="animate-bounce" />
+          </svg>
+          <span className="hidden lg:block text-xs italic font-body text-cream/90 leading-tight">
             cours de langue
             <br />
             en ligne

@@ -7,7 +7,6 @@ import { TEMOIGNAGES } from "@/lib/content";
 export default function Community() {
   const trackRef = useRef(null);
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
 
   function scrollToIndex(i) {
     const track = trackRef.current;
@@ -28,7 +27,6 @@ export default function Community() {
   }
 
   useEffect(() => {
-    if (paused) return;
     const id = setInterval(() => {
       setActive((a) => {
         const nextIndex = (a + 1) % TEMOIGNAGES.length;
@@ -38,7 +36,7 @@ export default function Community() {
     }, 3500);
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paused]);
+  }, []);
 
   function onScroll() {
     const track = trackRef.current;
@@ -63,11 +61,7 @@ export default function Community() {
             conviviale et bienveillante.
           </p>
 
-          <div
-            className="relative"
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => setPaused(false)}
-          >
+          <div className="relative">
             <div
               ref={trackRef}
               onScroll={onScroll}
