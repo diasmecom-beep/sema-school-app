@@ -12,7 +12,7 @@ export default function AnnouncementBar() {
             <Image src="/images/logo.png" alt="Sema" fill className="object-contain object-left" />
             <svg
               viewBox="0 0 60 50"
-              className="absolute bottom-1 right-3 h-14 w-[4.5rem]"
+              className="absolute -bottom-1 -right-1 h-11 w-14"
               aria-hidden="true"
             >
               <path
