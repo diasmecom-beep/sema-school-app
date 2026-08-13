@@ -16,7 +16,7 @@ export default function Hero() {
           </h1>
           <a
             href="/inscription"
-            className="mt-10 inline-block bg-brown-600 text-cream font-semibold px-8 py-4 rounded-full hover:bg-brown-700 transition"
+            className="mt-10 inline-block bg-terracotta-600 text-cream font-semibold px-8 py-4 rounded-full hover:opacity-90 transition"
           >
             Inscription
           </a>
