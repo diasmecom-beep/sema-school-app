@@ -11,6 +11,9 @@
 // Groupes valides : tshiluba-debutant, tshiluba-intermediaire,
 // swahili-debutant, swahili-intermediaire, lingala-debutant,
 // lingala-intermediaire, kikongo-debutant, kikongo-intermediaire
+//
+// Groupe spécial "admin-all" : compte de test/staff qui voit les 8 groupes
+// et leurs 8 liens Zoom d'un coup — à réserver à l'équipe Sema.
 
 import { createClient } from "@supabase/supabase-js";
 import { generateIdentifiant, generateCodeAcces, hashCode } from "../lib/accessCode.js";
@@ -30,9 +33,9 @@ async function main() {
   if (!nom || !email || !groupe) {
     throw new Error("Usage : --nom \"...\" --email ... --groupe <id-du-groupe>");
   }
-  if (!GROUPES.some((g) => g.id === groupe)) {
+  if (groupe !== "admin-all" && !GROUPES.some((g) => g.id === groupe)) {
     throw new Error(
-      `Groupe inconnu "${groupe}". Groupes valides : ${GROUPES.map((g) => g.id).join(", ")}`
+      `Groupe inconnu "${groupe}". Groupes valides : ${GROUPES.map((g) => g.id).join(", ")}, admin-all`
     );
   }
 
