@@ -3,7 +3,7 @@ export default function Hero() {
     <section className="bg-sage-800 text-cream">
       <div className="max-w-7xl mx-auto px-6 py-20 md:py-28 grid md:grid-cols-2 gap-14 items-center">
         <div>
-          <h1 className="font-display font-extrabold text-4xl md:text-6xl leading-[1.15] tracking-tight">
+          <h1 className="font-display font-extrabold text-3xl md:text-4xl leading-tight tracking-tight">
             ici tu apprends et pratiques
             <br />
             <em className="italic">le LINGALA</em>, <em className="italic">le SWAHILI</em>,
