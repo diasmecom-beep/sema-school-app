@@ -20,6 +20,12 @@ export async function POST(request) {
       .eq("identifiant", identifiant.trim())
       .single();
 
+    if (error || !row) {
+      console.error("[connexion] requête Supabase échouée:", error);
+    } else if (!verifyCode(codeAcces.trim(), row.code_acces_hash)) {
+      console.error("[connexion] code d'accès incorrect pour", identifiant.trim());
+    }
+
     if (error || !row || !verifyCode(codeAcces.trim(), row.code_acces_hash)) {
       return NextResponse.json({ error: "Identifiant ou code d'accès incorrect." }, { status: 401 });
     }
