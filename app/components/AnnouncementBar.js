@@ -10,36 +10,7 @@ export default function AnnouncementBar() {
         <a href="/" className="flex flex-col shrink-0">
           <div className="relative h-24 w-52 shrink-0">
             <Image src="/images/logo.png" alt="Sema" fill className="object-contain object-left" />
-            <svg
-              viewBox="0 0 60 50"
-              className="absolute -bottom-4 -right-1 h-6 w-8"
-              aria-hidden="true"
-            >
-              <path
-                d="M46 4c7.7 0 14 5.6 14 12.5S53.7 29 46 29c-1.3 0-2.6-.2-3.8-.5l-6.2 3.5 1.4-6.3C34.3 23.4 32 20.2 32 16.5 32 9.6 38.3 4 46 4Z"
-                fill="#C53D0E"
-                stroke="#61C3B6"
-                strokeWidth="2"
-                strokeLinejoin="round"
-              />
-              <circle cx="41.5" cy="16" r="1.8" fill="white" className="animate-typing-dot [animation-delay:0s]" />
-              <circle cx="46.5" cy="16" r="1.8" fill="white" className="animate-typing-dot [animation-delay:0.2s]" />
-              <circle cx="51.5" cy="16" r="1.8" fill="white" className="animate-typing-dot [animation-delay:0.4s]" />
-              <path
-                d="M23 15c8.3 0 15 6 15 13.5S31.3 42 23 42c-1.4 0-2.7-.2-4-.5l-6.7 4 1.6-6.9C10 36.2 8 32.5 8 28.5 8 21 14.7 15 23 15Z"
-                fill="#61C3B6"
-                stroke="#C53D0E"
-                strokeWidth="2"
-                strokeLinejoin="round"
-              />
-              <circle cx="18" cy="28" r="1.8" fill="white" className="animate-typing-dot [animation-delay:0s]" />
-              <circle cx="23" cy="28" r="1.8" fill="white" className="animate-typing-dot [animation-delay:0.2s]" />
-              <circle cx="28" cy="28" r="1.8" fill="white" className="animate-typing-dot [animation-delay:0.4s]" />
-            </svg>
           </div>
-          <span className="block text-sm italic font-body text-cream/90 leading-tight mt-4 ml-1">
-            cours de langue en ligne
-          </span>
         </a>
 
         <div className="hidden md:block flex-1 overflow-hidden">
