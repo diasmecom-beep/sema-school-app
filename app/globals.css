@@ -20,19 +20,66 @@ body {
   animation: marquee 22s linear infinite;
 }
 
-@keyframes typing-dot {
-  0%, 100% {
-    opacity: 0.15;
+@keyframes typing-dot-1 {
+  0%, 8% {
+    opacity: 0;
     transform: scale(0.5);
   }
-  50% {
+  16%, 82% {
     opacity: 1;
-    transform: scale(1.1);
+    transform: scale(1);
+  }
+  92%, 100% {
+    opacity: 0;
+    transform: scale(0.5);
   }
 }
 
-.animate-typing-dot {
-  animation: typing-dot 1.2s ease-in-out infinite;
+@keyframes typing-dot-2 {
+  0%, 24% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  32%, 82% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  92%, 100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+@keyframes typing-dot-3 {
+  0%, 40% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  48%, 82% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  92%, 100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+.animate-typing-dot-1,
+.animate-typing-dot-2,
+.animate-typing-dot-3 {
   transform-box: fill-box;
   transform-origin: center;
+}
+
+.animate-typing-dot-1 {
+  animation: typing-dot-1 1.8s ease-in-out infinite;
+}
+
+.animate-typing-dot-2 {
+  animation: typing-dot-2 1.8s ease-in-out infinite;
+}
+
+.animate-typing-dot-3 {
+  animation: typing-dot-3 1.8s ease-in-out infinite;
 }

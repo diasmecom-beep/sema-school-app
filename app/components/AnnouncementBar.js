@@ -12,12 +12,12 @@ export default function AnnouncementBar() {
             className="h-24 w-52 shrink-0"
           >
             <image href="/images/logo.png" x="0" y="0" width="1356" height="631" />
-            <circle cx="1195.5" cy="426.5" r="11" fill="white" className="animate-typing-dot [animation-delay:0s]" />
-            <circle cx="1236.5" cy="419.5" r="11" fill="white" className="animate-typing-dot [animation-delay:0.2s]" />
-            <circle cx="1279.5" cy="410.5" r="11" fill="white" className="animate-typing-dot [animation-delay:0.4s]" />
-            <circle cx="1119.5" cy="526.5" r="11" fill="white" className="animate-typing-dot [animation-delay:0s]" />
-            <circle cx="1162.5" cy="517.5" r="11" fill="white" className="animate-typing-dot [animation-delay:0.2s]" />
-            <circle cx="1203.5" cy="509.5" r="11" fill="white" className="animate-typing-dot [animation-delay:0.4s]" />
+            <circle cx="1195.5" cy="426.5" r="11" fill="white" className="animate-typing-dot-1" />
+            <circle cx="1236.5" cy="419.5" r="11" fill="white" className="animate-typing-dot-2" />
+            <circle cx="1279.5" cy="410.5" r="11" fill="white" className="animate-typing-dot-3" />
+            <circle cx="1119.5" cy="526.5" r="11" fill="white" className="animate-typing-dot-1" />
+            <circle cx="1162.5" cy="517.5" r="11" fill="white" className="animate-typing-dot-2" />
+            <circle cx="1203.5" cy="509.5" r="11" fill="white" className="animate-typing-dot-3" />
           </svg>
         </a>
 
