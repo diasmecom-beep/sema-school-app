@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 export default function AnnouncementBar() {
   const message = "Rentrée le 5 octobre !";
   const items = Array.from({ length: 6 }, () => message);
@@ -8,9 +6,19 @@ export default function AnnouncementBar() {
     <div className="bg-sage-800 text-cream">
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-6">
         <a href="/" className="flex flex-col shrink-0">
-          <div className="relative h-24 w-52 shrink-0">
-            <Image src="/images/logo.png" alt="Sema" fill className="object-contain object-left" />
-          </div>
+          <svg
+            viewBox="0 0 1356 631"
+            preserveAspectRatio="xMinYMid meet"
+            className="h-24 w-52 shrink-0"
+          >
+            <image href="/images/logo.png" x="0" y="0" width="1356" height="631" />
+            <circle cx="1195.5" cy="426.5" r="11" fill="white" className="animate-typing-dot [animation-delay:0s]" />
+            <circle cx="1236.5" cy="419.5" r="11" fill="white" className="animate-typing-dot [animation-delay:0.2s]" />
+            <circle cx="1279.5" cy="410.5" r="11" fill="white" className="animate-typing-dot [animation-delay:0.4s]" />
+            <circle cx="1119.5" cy="526.5" r="11" fill="white" className="animate-typing-dot [animation-delay:0s]" />
+            <circle cx="1162.5" cy="517.5" r="11" fill="white" className="animate-typing-dot [animation-delay:0.2s]" />
+            <circle cx="1203.5" cy="509.5" r="11" fill="white" className="animate-typing-dot [animation-delay:0.4s]" />
+          </svg>
         </a>
 
         <div className="hidden md:block flex-1 overflow-hidden">

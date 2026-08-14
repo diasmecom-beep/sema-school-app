@@ -33,5 +33,6 @@ body {
 
 .animate-typing-dot {
   animation: typing-dot 1.6s ease-in-out infinite;
+  transform-box: fill-box;
   transform-origin: center;
 }
