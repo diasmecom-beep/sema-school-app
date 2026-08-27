@@ -5,8 +5,8 @@ export default function Steps() {
   return (
     <>
       <div className="bg-white text-center px-6 pt-24">
-        <p className="font-display font-extrabold text-3xl md:text-4xl text-ink">
-          Zéro base ? Zéro jugement !
+        <p className="font-display font-extrabold text-[clamp(1.25rem,5.5vw,2.25rem)] md:text-4xl text-ink">
+          <span className="whitespace-nowrap">Zéro base ? Zéro jugement !</span>
           <br />
           100% progression.
         </p>
@@ -32,7 +32,9 @@ export default function Steps() {
                 <span className="shrink-0 h-12 w-12 rounded-full bg-ink text-terracotta-500 flex items-center justify-center font-bold text-lg">
                   {e.n}
                 </span>
-                <span className="font-semibold text-xl text-teal-400">{e.titre}</span>
+                <span className="font-semibold text-[clamp(0.85rem,3.6vw,1.25rem)] md:text-xl text-teal-400 whitespace-nowrap">
+                  {e.titre}
+                </span>
               </li>
             ))}
           </ol>

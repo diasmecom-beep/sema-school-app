@@ -31,8 +31,10 @@ export default function Schedule() {
             </div>
           ))}
         </div>
-        <p className="text-sm text-ink/60 mt-6">
-          Cours débutants : 19h30 – 20h30 &nbsp;·&nbsp; Cours intermédiaires : 20h45 – 21h45
+        <p className="text-sm text-ink/60 mt-6 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+          <span className="whitespace-nowrap">Cours débutants : 19h30 – 20h30</span>
+          <span className="hidden sm:inline">·</span>
+          <span className="whitespace-nowrap">Cours intermédiaires : 20h45 – 21h45</span>
         </p>
       </div>
     </section>

@@ -1,5 +1,6 @@
 import { Wix_Madefor_Text, Wix_Madefor_Display } from "next/font/google";
 import "./globals.css";
+import ScrollToTop from "./components/ScrollToTop";
 
 const wixText = Wix_Madefor_Text({
   subsets: ["latin"],
@@ -21,7 +22,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="fr" className={`${wixText.variable} ${wixDisplay.variable}`}>
-      <body className="min-h-screen font-body">{children}</body>
+      <body className="min-h-screen font-body">
+        {children}
+        <ScrollToTop />
+      </body>
     </html>
   );
 }

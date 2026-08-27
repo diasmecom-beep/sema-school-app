@@ -61,7 +61,7 @@ export default function Community() {
             conviviale et bienveillante.
           </p>
 
-          <div className="relative">
+          <div className="relative min-w-0">
             <div
               ref={trackRef}
               onScroll={onScroll}
@@ -70,9 +70,9 @@ export default function Community() {
               {TEMOIGNAGES.map((t, i) => (
                 <div
                   key={i}
-                  className="relative shrink-0 w-52 aspect-[4/5] rounded-xl overflow-hidden snap-start"
+                  className="relative shrink-0 w-full sm:w-52 aspect-[4/5] rounded-xl overflow-hidden snap-center sm:snap-start"
                 >
-                  <Image src={t.photo} alt="" fill className="object-cover" sizes="208px" />
+                  <Image src={t.photo} alt="" fill className="object-cover" sizes="(min-width: 640px) 208px, 100vw" />
                 </div>
               ))}
             </div>
