@@ -13,7 +13,7 @@ function toDatetimeLocal(iso) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export default function SeanceProf({ seance: seanceInitiale, devoirsInitiaux }) {
+export default function SeanceProf({ seance: seanceInitiale, devoirsInitiaux, ouvertParDefaut, enAvant }) {
   const [seance, setSeance] = useState(seanceInitiale);
   const [devoirs] = useState(devoirsInitiaux || []);
 
@@ -101,7 +101,12 @@ export default function SeanceProf({ seance: seanceInitiale, devoirsInitiaux }) 
   }
 
   return (
-    <details className="group border border-ink/10 rounded-xl overflow-hidden bg-white">
+    <details
+      open={ouvertParDefaut}
+      className={`group border rounded-xl overflow-hidden bg-white ${
+        enAvant ? "border-terracotta-600 ring-1 ring-terracotta-600/30" : "border-ink/10"
+      }`}
+    >
       <summary className="cursor-pointer list-none flex items-center justify-between gap-3 px-4 py-3 hover:bg-cream/60 transition">
         <span className="font-semibold text-ink capitalize">{formaterDateLongue(seance.date)}</span>
         <span className="flex items-center gap-2 text-xs text-ink/50">

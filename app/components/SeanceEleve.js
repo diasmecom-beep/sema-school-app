@@ -5,7 +5,7 @@ import { formaterDateLongue } from "@/lib/calendrier";
 
 const ICONES = { pdf: "📄", image: "🖼️", lien: "🔗", audio: "🎧" };
 
-export default function SeanceEleve({ seance, devoirInitial }) {
+export default function SeanceEleve({ seance, devoirInitial, ouvertParDefaut, enAvant }) {
   const [devoir, setDevoir] = useState(devoirInitial || null);
   const [envoi, setEnvoi] = useState(false);
   const [erreur, setErreur] = useState("");
@@ -39,7 +39,12 @@ export default function SeanceEleve({ seance, devoirInitial }) {
   }
 
   return (
-    <details className="group border border-ink/10 rounded-xl overflow-hidden bg-white">
+    <details
+      open={ouvertParDefaut}
+      className={`group border rounded-xl overflow-hidden bg-white ${
+        enAvant ? "border-terracotta-600 ring-1 ring-terracotta-600/30" : "border-ink/10"
+      }`}
+    >
       <summary className="cursor-pointer list-none flex items-center justify-between gap-3 px-4 py-3 hover:bg-cream/60 transition">
         <span className="font-semibold text-ink capitalize">{formaterDateLongue(seance.date)}</span>
         <span className="flex items-center gap-2 text-xs text-ink/50">

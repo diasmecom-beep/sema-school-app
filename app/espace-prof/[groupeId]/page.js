@@ -37,6 +37,20 @@ export default async function EspaceProfGroupePage({ params }) {
     nomsParIdentifiant = new Map((data || []).map((e) => [e.identifiant, e.nom]));
   }
 
+  // On met en avant le prochain cours (ou le dernier passé, si l'année est
+  // terminée) plutôt que d'afficher 30 séances à plat.
+  const aujourdhui = new Date().toISOString().slice(0, 10);
+  const indexProchaine = seances.findIndex((s) => s.date >= aujourdhui);
+  const indexEnAvant = indexProchaine === -1 ? seances.length - 1 : indexProchaine;
+  const seanceEnAvant = seances[indexEnAvant];
+  const autresSeances = seances.filter((_, i) => i !== indexEnAvant);
+  function devoirsDe(seance) {
+    return (devoirsParSeance.get(seance.id) || []).map((d) => ({
+      ...d,
+      eleveNom: nomsParIdentifiant.get(d.eleve_identifiant),
+    }));
+  }
+
   return (
     <div className="min-h-screen bg-cream flex flex-col">
       <EspaceHeader label={estAdmin ? "Espace admin" : "Espace prof"} actionDeconnexion="/api/deconnexion-prof" />
@@ -95,23 +109,43 @@ export default async function EspaceProfGroupePage({ params }) {
               Dépose les documents, l&rsquo;échéance et les notes de chaque séance à l&rsquo;avance — les élèves les
               verront automatiquement à la date du cours.
             </p>
-            <div className="space-y-2">
-              {seances.map((seance) => {
-                const devoirs = (devoirsParSeance.get(seance.id) || []).map((d) => ({
-                  ...d,
-                  eleveNom: nomsParIdentifiant.get(d.eleve_identifiant),
-                }));
-                return <SeanceProf key={seance.id} seance={seance} devoirsInitiaux={devoirs} />;
-              })}
-            </div>
+
+            {seanceEnAvant && (
+              <div className="mb-4">
+                <p className="text-xs font-bold text-terracotta-600 uppercase tracking-widest mb-2">
+                  {indexProchaine === -1 ? "Dernier cours" : "Prochain cours"}
+                </p>
+                <SeanceProf
+                  seance={seanceEnAvant}
+                  devoirsInitiaux={devoirsDe(seanceEnAvant)}
+                  ouvertParDefaut
+                  enAvant
+                />
+              </div>
+            )}
+
+            {autresSeances.length > 0 && (
+              <details className="border border-ink/10 rounded-xl bg-white">
+                <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-ink/70 hover:text-ink transition">
+                  Voir les autres séances ({autresSeances.length})
+                </summary>
+                <div className="px-3 pb-3 pt-1 space-y-2 border-t border-ink/5">
+                  {autresSeances.map((seance) => (
+                    <SeanceProf key={seance.id} seance={seance} devoirsInitiaux={devoirsDe(seance)} />
+                  ))}
+                </div>
+              </details>
+            )}
           </div>
 
           <div className="lg:sticky lg:top-8">
-            <h2 className="font-display font-extrabold text-xl text-ink mb-4">💬 Forum du groupe</h2>
-            <p className="text-xs text-ink/50 mb-3">
-              Questions des élèves, tags entre eux ou vers toi — tout le groupe y a accès.
-            </p>
-            <Chat groupeId={params.groupeId} role="prof" />
+            <Chat
+              groupeId={params.groupeId}
+              role="prof"
+              moi={{ prenom: prof.prenom, nom: prof.nom }}
+              titre="Forum du groupe"
+              description="Questions des élèves, tags entre eux ou vers toi — tout le groupe y a accès."
+            />
           </div>
         </div>
       </div>
