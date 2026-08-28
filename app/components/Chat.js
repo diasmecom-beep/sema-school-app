@@ -2,16 +2,35 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// Chat texte simple, un fil par groupe, entre élèves et prof. Rafraîchi par
-// sondage (pas de dépendance temps réel) — largement suffisant pour du Q&A
-// de cours.
+// Fait ressortir les @mentions dans un message ("@Fatou" devient un mot
+// mis en avant) — purement visuel, aucune notification n'est envoyée.
+function rendreContenu(contenu) {
+  const parts = contenu.split(/(@[\p{L}][\p{L}0-9._-]*)/gu);
+  return parts.map((part, i) =>
+    part.startsWith("@") ? (
+      <span key={i} className="font-semibold text-terracotta-600">
+        {part}
+      </span>
+    ) : (
+      <span key={i}>{part}</span>
+    )
+  );
+}
+
+// Forum texte simple, un fil par groupe, entre élèves, prof et admin. On
+// peut taguer quelqu'un avec @ (autocomplétion parmi les membres du
+// groupe) ou écrire "à tous" pour s'adresser à tout le monde. Rafraîchi par
+// sondage (pas de dépendance temps réel) — largement suffisant pour du
+// Q&A de cours.
 export default function Chat({ groupeId, role }) {
   const [messages, setMessages] = useState([]);
   const [texte, setTexte] = useState("");
   const [envoi, setEnvoi] = useState(false);
   const [erreur, setErreur] = useState("");
+  const [membres, setMembres] = useState([]);
+  const [suggestions, setSuggestions] = useState(null);
   const finRef = useRef(null);
-  const premierChargement = useRef(true);
+  const inputRef = useRef(null);
 
   async function charger() {
     try {
@@ -20,10 +39,6 @@ export default function Chat({ groupeId, role }) {
       if (data.messages) setMessages(data.messages);
     } catch {
       // silencieux — on réessaiera au prochain sondage
-    } finally {
-      if (premierChargement.current) {
-        premierChargement.current = false;
-      }
     }
   }
 
@@ -35,8 +50,53 @@ export default function Chat({ groupeId, role }) {
   }, [groupeId]);
 
   useEffect(() => {
+    fetch(`/api/groupe-membres?groupeId=${encodeURIComponent(groupeId)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data.error) {
+          const tous = [
+            ...(data.eleves || []).map((e) => ({ ...e, role: "eleve" })),
+            ...(data.profs || []).map((p) => ({ ...p, role: "prof" })),
+          ];
+          setMembres(tous);
+        }
+      })
+      .catch(() => {});
+  }, [groupeId]);
+
+  useEffect(() => {
     finRef.current?.scrollIntoView({ block: "nearest" });
   }, [messages.length]);
+
+  function nomAffiche(m) {
+    return m.prenom ? `${m.prenom} ${m.nom}` : m.nom;
+  }
+
+  function surChangementTexte(e) {
+    const val = e.target.value;
+    setTexte(val);
+
+    const curseur = e.target.selectionStart;
+    const avant = val.slice(0, curseur);
+    const match = avant.match(/@([\p{L}0-9._-]*)$/u);
+    if (match) {
+      const requete = match[1].toLowerCase();
+      const options = membres.filter((m) => nomAffiche(m).toLowerCase().includes(requete)).slice(0, 6);
+      setSuggestions({ options, debut: curseur - match[0].length });
+    } else {
+      setSuggestions(null);
+    }
+  }
+
+  function choisirMention(m) {
+    if (!suggestions) return;
+    const avant = texte.slice(0, suggestions.debut);
+    const apres = texte.slice(inputRef.current.selectionStart);
+    const nouveau = `${avant}@${nomAffiche(m).replace(/\s+/g, "")} ${apres}`;
+    setTexte(nouveau);
+    setSuggestions(null);
+    requestAnimationFrame(() => inputRef.current?.focus());
+  }
 
   async function envoyer() {
     if (!texte.trim() || envoi) return;
@@ -54,6 +114,7 @@ export default function Chat({ groupeId, role }) {
         return;
       }
       setTexte("");
+      setSuggestions(null);
       setMessages((m) => [...m, data.message]);
     } catch {
       setErreur("Échec de l'envoi.");
@@ -63,11 +124,11 @@ export default function Chat({ groupeId, role }) {
   }
 
   return (
-    <div className="flex flex-col border border-ink/10 rounded-xl overflow-hidden bg-white">
-      <div className="max-h-80 overflow-y-auto px-4 py-3 space-y-2">
+    <div className="flex flex-col border border-ink/10 rounded-xl overflow-hidden bg-white h-full">
+      <div className="flex-1 min-h-[16rem] max-h-[28rem] overflow-y-auto px-4 py-3 space-y-2">
         {messages.length === 0 && (
           <p className="text-sm text-ink/40 text-center py-6">
-            Aucun message pour l&rsquo;instant — pose ta première question ici.
+            Aucun message pour l&rsquo;instant — pose ta première question, ou tague quelqu&rsquo;un avec @.
           </p>
         )}
         {messages.map((m) => {
@@ -75,7 +136,7 @@ export default function Chat({ groupeId, role }) {
           return (
             <div key={m.id} className={`flex ${estMoi ? "justify-end" : "justify-start"}`}>
               <div
-                className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
+                className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${
                   m.auteur_type === "prof"
                     ? "bg-sage-800 text-cream"
                     : "bg-cream text-ink border border-ink/10"
@@ -85,7 +146,7 @@ export default function Chat({ groupeId, role }) {
                   {m.auteur_type === "prof" ? "Prof" : m.auteur_nom} ·{" "}
                   {new Date(m.created_at).toLocaleString("fr-BE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
                 </p>
-                <p className="whitespace-pre-wrap break-words">{m.contenu}</p>
+                <p className="whitespace-pre-wrap break-words">{rendreContenu(m.contenu)}</p>
               </div>
             </div>
           );
@@ -95,22 +156,42 @@ export default function Chat({ groupeId, role }) {
 
       {erreur && <p className="text-xs text-red-600 px-4">{erreur}</p>}
 
-      <div className="flex items-center gap-2 border-t border-ink/10 px-3 py-2">
-        <input
-          className="flex-1 text-sm px-3 py-2 rounded-full border border-ink/15 focus:outline-none focus:border-terracotta-600"
-          placeholder="Écris ta question..."
-          value={texte}
-          onChange={(e) => setTexte(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && envoyer()}
-        />
-        <button
-          type="button"
-          onClick={envoyer}
-          disabled={envoi || !texte.trim()}
-          className="shrink-0 bg-terracotta-600 text-cream text-sm font-semibold rounded-full px-4 py-2 hover:opacity-90 transition disabled:opacity-40"
-        >
-          Envoyer
-        </button>
+      <div className="relative border-t border-ink/10 px-3 py-2">
+        {suggestions && suggestions.options.length > 0 && (
+          <div className="absolute bottom-full left-3 right-3 mb-1 bg-white border border-ink/10 rounded-lg shadow-lg overflow-hidden z-10">
+            {suggestions.options.map((m) => (
+              <button
+                key={m.identifiant}
+                type="button"
+                onClick={() => choisirMention(m)}
+                className="w-full text-left px-3 py-2 text-sm hover:bg-cream transition flex items-center gap-2"
+              >
+                <span className={m.role === "prof" ? "text-sage-800 font-semibold" : "text-ink"}>
+                  {nomAffiche(m)}
+                </span>
+                {m.role === "prof" && <span className="text-[10px] text-ink/40 uppercase">Prof</span>}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="flex items-center gap-2">
+          <input
+            ref={inputRef}
+            className="flex-1 text-sm px-3 py-2 rounded-full border border-ink/15 focus:outline-none focus:border-terracotta-600"
+            placeholder="Écris un message, @ pour taguer quelqu'un..."
+            value={texte}
+            onChange={surChangementTexte}
+            onKeyDown={(e) => e.key === "Enter" && !suggestions && envoyer()}
+          />
+          <button
+            type="button"
+            onClick={envoyer}
+            disabled={envoi || !texte.trim()}
+            className="shrink-0 bg-terracotta-600 text-cream text-sm font-semibold rounded-full px-4 py-2 hover:opacity-90 transition disabled:opacity-40"
+          >
+            Envoyer
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -3,7 +3,8 @@ import Link from "next/link";
 import { getProfConnecte } from "@/lib/profs";
 import { GROUPES } from "@/lib/content";
 import ProfilForm from "../components/ProfilForm";
-import BoutonAccueil from "../components/BoutonAccueil";
+import EspaceHeader from "../components/EspaceHeader";
+import Footer from "../components/Footer";
 
 export default async function EspaceProfPage() {
   const prof = await getProfConnecte();
@@ -19,57 +20,49 @@ export default async function EspaceProfPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-16">
-      <div className="flex items-center justify-between mb-8 gap-3">
-        <p className="text-terracotta-600 font-bold tracking-widest text-sm">
-          ESPACE PROF · {prof.prenom ? `${prof.prenom} ${prof.nom}` : prof.nom} {estAdmin && "· ADMIN"}
-        </p>
-        <div className="flex items-center gap-3 shrink-0">
-          <BoutonAccueil />
-          <form action="/api/deconnexion-prof" method="POST">
-            <button type="submit" className="text-sm text-ink/40 hover:text-ink transition">
-              Déconnexion
-            </button>
-          </form>
-        </div>
+    <div className="min-h-screen bg-cream flex flex-col">
+      <EspaceHeader label={estAdmin ? "Espace admin" : "Espace prof"} actionDeconnexion="/api/deconnexion-prof" />
+
+      <div className="max-w-2xl mx-auto px-6 py-12 flex-1 w-full">
+        <details className="mb-10 border border-ink/10 rounded-xl bg-white shadow-sm">
+          <summary className="cursor-pointer list-none px-4 py-3 font-semibold text-ink text-sm flex items-center justify-between">
+            👤 Mon profil — {prof.prenom ? `${prof.prenom} ${prof.nom}` : prof.nom}
+            <span>⌄</span>
+          </summary>
+          <div className="px-4 pb-4 pt-1 border-t border-ink/5">
+            <ProfilForm prenom={prof.prenom} nom={prof.nom} photoChemin={prof.photo_chemin} />
+          </div>
+        </details>
+
+        <h1 className="font-display font-extrabold text-3xl text-ink mb-8">Mes groupes</h1>
+
+        {groupes.length === 0 ? (
+          <p className="bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3">
+            Aucun groupe assigné à ce compte — contacte l&rsquo;équipe Sema.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {groupes.map((g) => (
+              <Link
+                key={g.id}
+                href={`/espace-prof/${g.id}`}
+                className="flex items-center justify-between bg-sage-800 text-cream rounded-2xl p-6 hover:opacity-90 transition shadow-sm"
+              >
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-cream/70 mb-1">{g.jour}</p>
+                  <p className="font-display font-extrabold text-lg">
+                    {g.langue} — {g.niveau}
+                  </p>
+                  <p className="text-cream/80 text-sm">{g.horaire}</p>
+                </div>
+                <span>→</span>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
-      <details className="mb-10 border border-ink/10 rounded-xl bg-white">
-        <summary className="cursor-pointer list-none px-4 py-3 font-semibold text-ink text-sm flex items-center justify-between">
-          Mon profil
-          <span>⌄</span>
-        </summary>
-        <div className="px-4 pb-4 pt-1 border-t border-ink/5">
-          <ProfilForm prenom={prof.prenom} nom={prof.nom} photoChemin={prof.photo_chemin} />
-        </div>
-      </details>
-
-      <h1 className="font-display font-extrabold text-3xl text-ink mb-8">Mes groupes</h1>
-
-      {groupes.length === 0 ? (
-        <p className="bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3">
-          Aucun groupe assigné à ce compte — contacte l&rsquo;équipe Sema.
-        </p>
-      ) : (
-        <div className="space-y-3">
-          {groupes.map((g) => (
-            <Link
-              key={g.id}
-              href={`/espace-prof/${g.id}`}
-              className="flex items-center justify-between bg-sage-800 text-cream rounded-2xl p-6 hover:opacity-90 transition"
-            >
-              <div>
-                <p className="text-xs uppercase tracking-widest text-cream/70 mb-1">{g.jour}</p>
-                <p className="font-display font-extrabold text-lg">
-                  {g.langue} — {g.niveau}
-                </p>
-                <p className="text-cream/80 text-sm">{g.horaire}</p>
-              </div>
-              <span>→</span>
-            </Link>
-          ))}
-        </div>
-      )}
+      <Footer />
     </div>
   );
 }
