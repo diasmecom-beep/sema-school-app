@@ -14,7 +14,7 @@ export async function POST(request) {
       return NextResponse.json({ error: "Identifiant et code d'accès requis." }, { status: 400 });
     }
 
-    // Identifiant et code sont toujours générés en majuscules — on normalise
+    // Identifiant et code sont toujours générés en majuscules - on normalise
     // la casse et les espaces superflus pour éviter les échecs de connexion
     // dus à une saisie ou un copier-coller légèrement différents.
     const identifiantNormalise = identifiant.trim().toUpperCase();
@@ -32,7 +32,7 @@ export async function POST(request) {
 
     if (row.statut !== "actif") {
       return NextResponse.json(
-        { error: "Ce compte n'est pas encore actif — contacte l'équipe Sema." },
+        { error: "Ce compte n'est pas encore actif - contacte l'équipe Sema." },
         { status: 403 }
       );
     }
@@ -43,7 +43,9 @@ export async function POST(request) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 180,
+      // Pas d'expiration courte : la session reste ouverte tant que la
+      // personne ne s'est pas déconnectée elle-même.
+      maxAge: 60 * 60 * 24 * 365 * 5,
     });
     return response;
   } catch (err) {

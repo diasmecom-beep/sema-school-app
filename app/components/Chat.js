@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Avatar from "./Avatar";
 
 // Fait ressortir les @mentions dans un message ("@Fatou" devient un mot
-// mis en avant) — purement visuel, aucune notification n'est envoyée.
+// mis en avant) - purement visuel, aucune notification n'est envoyée.
 function rendreContenu(contenu) {
   const parts = contenu.split(/(@[\p{L}][\p{L}0-9._-]*)/gu);
   return parts.map((part, i) =>
@@ -24,7 +25,7 @@ function cleVu(groupeId) {
 // Forum texte simple, un fil par groupe, entre élèves, prof et admin. On
 // peut taguer quelqu'un avec @ (autocomplétion parmi les membres du
 // groupe) ou écrire "à tous" pour s'adresser à tout le monde. Rafraîchi par
-// sondage (pas de dépendance temps réel) — largement suffisant pour du
+// sondage (pas de dépendance temps réel) - largement suffisant pour du
 // Q&A de cours. Une bannière signale les nouveaux messages, et en
 // particulier si l'utilisateur·rice a été tagué·e.
 export default function Chat({ groupeId, role, moi, titre = "Forum du groupe", description }) {
@@ -54,7 +55,7 @@ export default function Chat({ groupeId, role, moi, titre = "Forum du groupe", d
       const data = await res.json();
       if (data.messages) setMessages(data.messages);
     } catch {
-      // silencieux — on réessaiera au prochain sondage
+      // silencieux - on réessaiera au prochain sondage
     }
   }
 
@@ -95,7 +96,7 @@ export default function Chat({ groupeId, role, moi, titre = "Forum du groupe", d
     try {
       localStorage.setItem(cleVu(groupeId), maintenant);
     } catch {
-      // stockage indisponible — pas grave, juste pas de mémorisation
+      // stockage indisponible - pas grave, juste pas de mémorisation
     }
     setDernierVu(maintenant);
   }
@@ -182,7 +183,7 @@ export default function Chat({ groupeId, role, moi, titre = "Forum du groupe", d
             }`}
           >
             <span>
-              {jeSuisTague ? "🔔 On t'a tagué·e — " : "🔵 "}
+              {jeSuisTague ? "🔔 On t'a tagué·e - " : "🔵 "}
               {nonLus.length} nouveau{nonLus.length > 1 ? "x" : ""} message{nonLus.length > 1 ? "s" : ""}
             </span>
             <span className="underline">Marquer comme lu</span>
@@ -192,22 +193,26 @@ export default function Chat({ groupeId, role, moi, titre = "Forum du groupe", d
         <div className="flex-1 min-h-[16rem] max-h-[28rem] overflow-y-auto px-4 py-3 space-y-2">
           {messages.length === 0 && (
             <p className="text-sm text-ink/40 text-center py-6">
-              Aucun message pour l&rsquo;instant — pose ta première question, ou tague quelqu&rsquo;un avec @.
+              Aucun message pour l&rsquo;instant - pose ta première question, ou tague quelqu&rsquo;un avec @.
             </p>
           )}
           {messages.map((m) => {
             const estMoi = m.auteur_type === role;
+            const prenomAuteur = m.prenom || m.auteur_nom;
             return (
-              <div key={m.id} className={`flex ${estMoi ? "justify-end" : "justify-start"}`}>
+              <div key={m.id} className={`flex items-end gap-2 ${estMoi ? "justify-end" : "justify-start"}`}>
+                {!estMoi && (
+                  <Avatar prenom={m.prenom} nom={m.auteur_nom} photoChemin={m.photo_chemin} taille={6} />
+                )}
                 <div
-                  className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${
+                  className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
                     m.auteur_type === "prof"
                       ? "bg-sage-800 text-cream"
                       : "bg-cream text-ink border border-ink/10"
                   }`}
                 >
                   <p className="text-[11px] font-semibold opacity-70 mb-0.5">
-                    {m.auteur_type === "prof" ? "Prof" : m.auteur_nom} ·{" "}
+                    {m.auteur_type === "prof" ? `Prof - ${prenomAuteur}` : prenomAuteur} ·{" "}
                     {new Date(m.created_at).toLocaleString("fr-BE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
                   </p>
                   <p className="whitespace-pre-wrap break-words">{rendreContenu(m.contenu)}</p>

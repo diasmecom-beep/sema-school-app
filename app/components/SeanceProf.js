@@ -249,7 +249,7 @@ export default function SeanceProf({ seance: seanceInitiale, devoirsInitiaux, ou
                     rel="noopener noreferrer"
                     className="text-terracotta-600 hover:underline"
                   >
-                    {d.eleveNom || d.eleve_identifiant} — {d.fichier_nom}
+                    {d.eleveNom || d.eleve_identifiant} - {d.fichier_nom}
                   </a>
                   <span className="text-xs text-ink/40">{new Date(d.soumis_at).toLocaleDateString("fr-BE")}</span>
                 </li>

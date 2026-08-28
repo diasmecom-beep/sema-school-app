@@ -15,7 +15,7 @@ const wixDisplay = Wix_Madefor_Display({
 });
 
 export const metadata = {
-  title: "Sema — Cours de langue en ligne",
+  title: "Sema - Cours de langue en ligne",
   description: "Apprends et pratique le lingala, le swahili, le tshiluba et le kikongo en ligne.",
 };
 

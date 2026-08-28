@@ -9,6 +9,9 @@ import Chat from "../../components/Chat";
 import ProfilForm from "../../components/ProfilForm";
 import EspaceHeader from "../../components/EspaceHeader";
 import Footer from "../../components/Footer";
+import Avatar from "../../components/Avatar";
+import MembresGroupe from "../../components/MembresGroupe";
+import { salutationPourLangue } from "@/lib/salutations";
 
 export default async function EspaceProfGroupePage({ params }) {
   const prof = await getProfConnecte();
@@ -51,14 +54,20 @@ export default async function EspaceProfGroupePage({ params }) {
     }));
   }
 
+  const salutation = estAdmin ? "Bonjour" : salutationPourLangue(groupe.langue);
+  const prenomAffiche = prof.prenom || prof.nom;
+
   return (
     <div className="min-h-screen bg-cream flex flex-col">
       <EspaceHeader label={estAdmin ? "Espace admin" : "Espace prof"} actionDeconnexion="/api/deconnexion-prof" />
 
       <div className="max-w-6xl mx-auto px-6 py-12 flex-1 w-full">
         <details className="mb-8 border border-ink/10 rounded-xl bg-white shadow-sm">
-          <summary className="cursor-pointer list-none px-4 py-3 font-semibold text-ink text-sm flex items-center justify-between">
-            👤 Mon profil — {prof.prenom ? `${prof.prenom} ${prof.nom}` : prof.nom}
+          <summary className="cursor-pointer list-none px-4 py-3 font-semibold text-ink text-sm flex items-center gap-3">
+            <Avatar prenom={prof.prenom} nom={prof.nom} photoChemin={prof.photo_chemin} taille={8} />
+            <span className="flex-1">
+              {salutation} {prenomAffiche}
+            </span>
             <span>⌄</span>
           </summary>
           <div className="px-4 pb-4 pt-1 border-t border-ink/5">
@@ -76,7 +85,7 @@ export default async function EspaceProfGroupePage({ params }) {
               <div>
                 <p className="text-xs uppercase tracking-widest text-cream/70 mb-1">{groupe.jour}</p>
                 <p className="font-display font-extrabold text-xl">
-                  {groupe.langue} — {groupe.niveau}
+                  {groupe.langue} - {groupe.niveau}
                 </p>
                 <p className="text-cream/80 text-sm">{groupe.horaire}</p>
               </div>
@@ -106,7 +115,7 @@ export default async function EspaceProfGroupePage({ params }) {
 
             <h2 className="font-display font-extrabold text-xl text-ink mb-4">📁 Séances de l&rsquo;année</h2>
             <p className="text-sm text-ink/50 mb-4">
-              Dépose les documents, l&rsquo;échéance et les notes de chaque séance à l&rsquo;avance — les élèves les
+              Dépose les documents, l&rsquo;échéance et les notes de chaque séance à l&rsquo;avance - les élèves les
               verront automatiquement à la date du cours.
             </p>
 
@@ -139,12 +148,13 @@ export default async function EspaceProfGroupePage({ params }) {
           </div>
 
           <div className="lg:sticky lg:top-8">
+            <MembresGroupe groupeId={params.groupeId} />
             <Chat
               groupeId={params.groupeId}
               role="prof"
               moi={{ prenom: prof.prenom, nom: prof.nom }}
               titre="Forum du groupe"
-              description="Questions des élèves, tags entre eux ou vers toi — tout le groupe y a accès."
+              description="Questions des élèves, tags entre eux ou vers toi - tout le groupe y a accès."
             />
           </div>
         </div>

@@ -1,6 +1,28 @@
-export default function AnnouncementBar() {
+import { getEleveConnecte } from "@/lib/eleves";
+import { getProfConnecte } from "@/lib/profs";
+
+// Bouton "Connexion" adapté au rôle de la personne déjà connectée (élève,
+// prof ou admin) - couleur et libellé différents selon le cas.
+async function boutonConnexion() {
+  const [eleve, prof] = await Promise.all([getEleveConnecte(), getProfConnecte()]);
+
+  if (prof?.groupes.includes("admin-all") || eleve?.groupe_id === "admin-all") {
+    const href = prof?.groupes.includes("admin-all") ? "/espace-prof" : "/espace-eleve";
+    return { href, label: "Espace admin", classe: "bg-ink" };
+  }
+  if (prof) {
+    return { href: "/espace-prof", label: "Espace prof", classe: "bg-brown-600" };
+  }
+  if (eleve) {
+    return { href: "/espace-eleve", label: "Mon espace", classe: "bg-terracotta-600" };
+  }
+  return { href: "/connexion", label: "Connexion", classe: "bg-terracotta-600" };
+}
+
+export default async function AnnouncementBar() {
   const message = "Rentrée le 5 octobre !";
   const items = Array.from({ length: 6 }, () => message);
+  const bouton = await boutonConnexion();
 
   return (
     <div className="bg-sage-800 text-cream">
@@ -33,10 +55,10 @@ export default function AnnouncementBar() {
 
         <div className="shrink-0 flex items-center gap-4">
           <a
-            href="/connexion"
-            className="hidden sm:block bg-terracotta-600 text-cream text-sm font-semibold px-4 py-2 rounded-full hover:opacity-90 transition"
+            href={bouton.href}
+            className={`hidden sm:block ${bouton.classe} text-cream text-sm font-semibold px-4 py-2 rounded-full hover:opacity-90 transition`}
           >
-            Espace élève
+            {bouton.label}
           </a>
           <a
             href="/"

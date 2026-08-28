@@ -7,6 +7,9 @@ import Chat from "../components/Chat";
 import ProfilForm from "../components/ProfilForm";
 import EspaceHeader from "../components/EspaceHeader";
 import Footer from "../components/Footer";
+import Avatar from "../components/Avatar";
+import MembresGroupe from "../components/MembresGroupe";
+import { salutationPourLangue } from "@/lib/salutations";
 
 export default async function EspaceElevePage() {
   const eleve = await getEleveConnecte();
@@ -34,14 +37,20 @@ export default async function EspaceElevePage() {
   const seanceEnAvant = seances[indexEnAvant];
   const autresSeances = seances.filter((_, i) => i !== indexEnAvant);
 
+  const salutation = isAdmin ? "Bonjour" : salutationPourLangue(groupe?.langue);
+  const prenomAffiche = eleve.prenom || eleve.nom;
+
   return (
     <div className="min-h-screen bg-cream flex flex-col">
       <EspaceHeader label={isAdmin ? "Espace admin" : "Espace élève"} actionDeconnexion="/api/deconnexion" />
 
       <div className="max-w-6xl mx-auto px-6 py-12 flex-1 w-full">
         <details className="mb-10 border border-ink/10 rounded-xl bg-white shadow-sm">
-          <summary className="cursor-pointer list-none px-4 py-3 font-semibold text-ink text-sm flex items-center justify-between">
-            👤 Mon profil — {eleve.prenom ? `${eleve.prenom} ${eleve.nom}` : eleve.nom}
+          <summary className="cursor-pointer list-none px-4 py-3 font-semibold text-ink text-sm flex items-center gap-3">
+            <Avatar prenom={eleve.prenom} nom={eleve.nom} photoChemin={eleve.photo_chemin} taille={8} />
+            <span className="flex-1">
+              {salutation} {prenomAffiche}
+            </span>
             <span>⌄</span>
           </summary>
           <div className="px-4 pb-4 pt-1 border-t border-ink/5">
@@ -62,7 +71,7 @@ export default async function EspaceElevePage() {
                     <div>
                       <p className="text-xs uppercase tracking-widest text-cream/70 mb-1">{g.jour}</p>
                       <p className="font-display font-extrabold text-lg">
-                        {g.langue} — {g.niveau}
+                        {g.langue} - {g.niveau}
                       </p>
                       <p className="text-cream/80 text-sm">{g.horaire}</p>
                     </div>
@@ -93,13 +102,13 @@ export default async function EspaceElevePage() {
               </div>
             ) : !groupe ? (
               <p className="bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3 mb-12">
-                Groupe introuvable — contacte l&rsquo;équipe Sema.
+                Groupe introuvable - contacte l&rsquo;équipe Sema.
               </p>
             ) : (
               <div className="bg-sage-800 text-cream rounded-2xl p-8 mb-12 shadow-sm">
                 <p className="text-xs uppercase tracking-widest text-cream/70 mb-1">{groupe.jour}</p>
                 <p className="font-display font-extrabold text-2xl mb-1">
-                  {groupe.langue} — {groupe.niveau}
+                  {groupe.langue} - {groupe.niveau}
                 </p>
                 <p className="text-cream/80 mb-6">{groupe.horaire}</p>
 
@@ -134,7 +143,7 @@ export default async function EspaceElevePage() {
               <>
                 <h2 className="font-display font-extrabold text-xl text-ink mb-4">📁 Mes fichiers &amp; devoirs</h2>
                 <p className="text-sm text-ink/50 mb-4">
-                  Un dossier par date de cours — documents à télécharger, replay, et zone pour remettre ton devoir.
+                  Un dossier par date de cours - documents à télécharger, replay, et zone pour remettre ton devoir.
                 </p>
 
                 {seanceEnAvant && (
@@ -173,6 +182,7 @@ export default async function EspaceElevePage() {
 
           {groupeAffiche && (
             <div className="lg:sticky lg:top-8">
+              <MembresGroupe groupeId={groupeAffiche} />
               <Chat
                 groupeId={groupeAffiche}
                 role="eleve"

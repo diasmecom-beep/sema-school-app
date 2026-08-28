@@ -5,6 +5,8 @@ import { GROUPES } from "@/lib/content";
 import ProfilForm from "../components/ProfilForm";
 import EspaceHeader from "../components/EspaceHeader";
 import Footer from "../components/Footer";
+import Avatar from "../components/Avatar";
+import { salutationPourLangue, langueDuProf } from "@/lib/salutations";
 
 export default async function EspaceProfPage() {
   const prof = await getProfConnecte();
@@ -19,14 +21,20 @@ export default async function EspaceProfPage() {
     redirect(`/espace-prof/${groupes[0].id}`);
   }
 
+  const salutation = estAdmin ? "Bonjour" : salutationPourLangue(langueDuProf(prof));
+  const prenomAffiche = prof.prenom || prof.nom;
+
   return (
     <div className="min-h-screen bg-cream flex flex-col">
       <EspaceHeader label={estAdmin ? "Espace admin" : "Espace prof"} actionDeconnexion="/api/deconnexion-prof" />
 
       <div className="max-w-2xl mx-auto px-6 py-12 flex-1 w-full">
         <details className="mb-10 border border-ink/10 rounded-xl bg-white shadow-sm">
-          <summary className="cursor-pointer list-none px-4 py-3 font-semibold text-ink text-sm flex items-center justify-between">
-            👤 Mon profil — {prof.prenom ? `${prof.prenom} ${prof.nom}` : prof.nom}
+          <summary className="cursor-pointer list-none px-4 py-3 font-semibold text-ink text-sm flex items-center gap-3">
+            <Avatar prenom={prof.prenom} nom={prof.nom} photoChemin={prof.photo_chemin} taille={8} />
+            <span className="flex-1">
+              {salutation} {prenomAffiche}
+            </span>
             <span>⌄</span>
           </summary>
           <div className="px-4 pb-4 pt-1 border-t border-ink/5">
@@ -38,7 +46,7 @@ export default async function EspaceProfPage() {
 
         {groupes.length === 0 ? (
           <p className="bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3">
-            Aucun groupe assigné à ce compte — contacte l&rsquo;équipe Sema.
+            Aucun groupe assigné à ce compte - contacte l&rsquo;équipe Sema.
           </p>
         ) : (
           <div className="space-y-3">
@@ -51,7 +59,7 @@ export default async function EspaceProfPage() {
                 <div>
                   <p className="text-xs uppercase tracking-widest text-cream/70 mb-1">{g.jour}</p>
                   <p className="font-display font-extrabold text-lg">
-                    {g.langue} — {g.niveau}
+                    {g.langue} - {g.niveau}
                   </p>
                   <p className="text-cream/80 text-sm">{g.horaire}</p>
                 </div>
