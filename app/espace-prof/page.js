@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getProfConnecte } from "@/lib/profs";
 import { GROUPES } from "@/lib/content";
+import ProfilForm from "../components/ProfilForm";
+import BoutonAccueil from "../components/BoutonAccueil";
 
 export default async function EspaceProfPage() {
   const prof = await getProfConnecte();
@@ -18,16 +20,29 @@ export default async function EspaceProfPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-16">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8 gap-3">
         <p className="text-terracotta-600 font-bold tracking-widest text-sm">
-          ESPACE PROF · {prof.nom} {estAdmin && "· ADMIN"}
+          ESPACE PROF · {prof.prenom ? `${prof.prenom} ${prof.nom}` : prof.nom} {estAdmin && "· ADMIN"}
         </p>
-        <form action="/api/deconnexion-prof" method="POST">
-          <button type="submit" className="text-sm text-ink/40 hover:text-ink transition">
-            Déconnexion
-          </button>
-        </form>
+        <div className="flex items-center gap-3 shrink-0">
+          <BoutonAccueil />
+          <form action="/api/deconnexion-prof" method="POST">
+            <button type="submit" className="text-sm text-ink/40 hover:text-ink transition">
+              Déconnexion
+            </button>
+          </form>
+        </div>
       </div>
+
+      <details className="mb-10 border border-ink/10 rounded-xl bg-white">
+        <summary className="cursor-pointer list-none px-4 py-3 font-semibold text-ink text-sm flex items-center justify-between">
+          Mon profil
+          <span>⌄</span>
+        </summary>
+        <div className="px-4 pb-4 pt-1 border-t border-ink/5">
+          <ProfilForm prenom={prof.prenom} nom={prof.nom} photoChemin={prof.photo_chemin} />
+        </div>
+      </details>
 
       <h1 className="font-display font-extrabold text-3xl text-ink mb-8">Mes groupes</h1>
 

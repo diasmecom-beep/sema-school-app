@@ -18,22 +18,29 @@ export async function GET(request) {
     return NextResponse.json({ error: "Chemin manquant." }, { status: 400 });
   }
 
-  const seanceId = seanceIdDepuisChemin(chemin);
-  const groupeId = groupeIdDepuisSeanceId(seanceId);
-  if (!groupeId) {
-    return NextResponse.json({ error: "Chemin invalide." }, { status: 400 });
-  }
-
   const [eleve, prof] = await Promise.all([getEleveConnecte(), getProfConnecte()]);
 
   let autorise = false;
-  if (prof && (prof.groupes.includes(groupeId) || prof.groupes.includes("admin-all"))) {
-    autorise = true;
-  } else if (eleve && (eleve.groupe_id === groupeId || eleve.groupe_id === "admin-all")) {
-    // Un devoir n'est visible par un élève que si c'est le sien.
-    const estDevoir = chemin.startsWith("devoirs/");
-    if (!estDevoir || chemin.includes(`/${eleve.identifiant}/`)) {
+
+  if (chemin.startsWith("avatars/")) {
+    // Photo de profil : pas liée à un groupe — juste être connecté suffit
+    // (élève ou prof, n'importe lequel).
+    autorise = Boolean(eleve || prof);
+  } else {
+    const seanceId = seanceIdDepuisChemin(chemin);
+    const groupeId = groupeIdDepuisSeanceId(seanceId);
+    if (!groupeId) {
+      return NextResponse.json({ error: "Chemin invalide." }, { status: 400 });
+    }
+
+    if (prof && (prof.groupes.includes(groupeId) || prof.groupes.includes("admin-all"))) {
       autorise = true;
+    } else if (eleve && (eleve.groupe_id === groupeId || eleve.groupe_id === "admin-all")) {
+      // Un devoir n'est visible par un élève que si c'est le sien.
+      const estDevoir = chemin.startsWith("devoirs/");
+      if (!estDevoir || chemin.includes(`/${eleve.identifiant}/`)) {
+        autorise = true;
+      }
     }
   }
 

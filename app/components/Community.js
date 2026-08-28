@@ -4,6 +4,28 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { TEMOIGNAGES } from "@/lib/content";
 
+// Glissement en douceur, avec accélération/décélération — plus agréable à
+// l'œil que le scroll "smooth" natif du navigateur, souvent trop sec et de
+// durée non maîtrisable.
+function easeInOutCubic(t) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+function defilerVers(el, cible, duree = 900) {
+  const depart = el.scrollLeft;
+  const distance = cible - depart;
+  if (Math.abs(distance) < 1) return;
+  const debut = performance.now();
+
+  function etape(maintenant) {
+    const ecoule = maintenant - debut;
+    const progres = Math.min(ecoule / duree, 1);
+    el.scrollLeft = depart + distance * easeInOutCubic(progres);
+    if (progres < 1) requestAnimationFrame(etape);
+  }
+  requestAnimationFrame(etape);
+}
+
 export default function Community() {
   const trackRef = useRef(null);
   const [active, setActive] = useState(0);
@@ -14,7 +36,7 @@ export default function Community() {
     const wrapped = (i + TEMOIGNAGES.length) % TEMOIGNAGES.length;
     const card = track.children[wrapped];
     if (!card) return;
-    track.scrollTo({ left: card.offsetLeft - track.offsetLeft, behavior: "smooth" });
+    defilerVers(track, card.offsetLeft - track.offsetLeft);
     setActive(wrapped);
   }
 
@@ -33,7 +55,7 @@ export default function Community() {
         scrollToIndex(nextIndex);
         return nextIndex;
       });
-    }, 3500);
+    }, 4500);
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -65,7 +87,7 @@ export default function Community() {
             <div
               ref={trackRef}
               onScroll={onScroll}
-              className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="flex gap-4 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {TEMOIGNAGES.map((t, i) => (
                 <div

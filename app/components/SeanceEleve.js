@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { formaterDateLongue } from "@/lib/calendrier";
 
-const ICONES = { pdf: "📄", image: "🖼️", lien: "🔗" };
+const ICONES = { pdf: "📄", image: "🖼️", lien: "🔗", audio: "🎧" };
 
 export default function SeanceEleve({ seance, devoirInitial }) {
   const [devoir, setDevoir] = useState(devoirInitial || null);
@@ -107,6 +107,7 @@ export default function SeanceEleve({ seance, devoirInitial }) {
                 type="file"
                 name="fichier"
                 required
+                accept=".pdf,.png,.jpg,.jpeg,.mp3,.m4a,.wav,application/pdf,image/*,audio/*"
                 className="text-xs text-ink/70 file:mr-2 file:rounded-full file:border-0 file:bg-cream file:px-3 file:py-1.5 file:text-xs file:font-semibold"
               />
               <button
@@ -117,6 +118,11 @@ export default function SeanceEleve({ seance, devoirInitial }) {
                 {envoi ? "Envoi..." : echeancePassee ? "Remettre en retard" : "Remettre le devoir"}
               </button>
             </form>
+          )}
+          {!devoir && (
+            <p className="text-[11px] text-ink/40 mt-1">
+              PDF, image ou audio (MP3) — pour un devoir oral, enregistre-toi et dépose le fichier audio.
+            </p>
           )}
           {erreur && <p className="text-xs text-red-600 mt-1">{erreur}</p>}
         </div>

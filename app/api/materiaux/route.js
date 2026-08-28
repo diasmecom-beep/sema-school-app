@@ -4,7 +4,8 @@ import { getProfConnecte } from "@/lib/profs";
 import { assurerSeance } from "@/lib/seances";
 import { BUCKET_FICHIERS, cheminMateriau, groupeIdDepuisSeanceId } from "@/lib/fichiers";
 
-const TYPES_FICHIER = { pdf: "application/pdf", image: "image" };
+const TYPES_FICHIER = { pdf: "application/pdf", image: "image", audio: "audio/mpeg" };
+const TYPES_VALIDES = ["pdf", "image", "lien", "audio"];
 
 export async function POST(request) {
   if (!supabaseAdmin) {
@@ -24,7 +25,7 @@ export async function POST(request) {
   const lien = form.get("url")?.toString().trim();
   const fichier = form.get("fichier");
 
-  if (!seanceId || !date || !titre || !["pdf", "image", "lien"].includes(type)) {
+  if (!seanceId || !date || !titre || !TYPES_VALIDES.includes(type)) {
     return NextResponse.json({ error: "Champs manquants ou invalides." }, { status: 400 });
   }
 

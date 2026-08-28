@@ -4,6 +4,8 @@ import { getGroupeAvecZoom, getTousLesGroupesAvecZoom } from "@/lib/groupesZoom"
 import { listerSeancesGroupe, listerDevoirsGroupe } from "@/lib/seances";
 import SeanceEleve from "../components/SeanceEleve";
 import Chat from "../components/Chat";
+import ProfilForm from "../components/ProfilForm";
+import BoutonAccueil from "../components/BoutonAccueil";
 
 export default async function EspaceElevePage() {
   const eleve = await getEleveConnecte();
@@ -25,16 +27,29 @@ export default async function EspaceElevePage() {
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-16">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8 gap-3">
         <p className="text-terracotta-600 font-bold tracking-widest text-sm">
-          ESPACE ÉLÈVE · {eleve.nom} {isAdmin && "· ADMIN"}
+          ESPACE ÉLÈVE · {eleve.prenom ? `${eleve.prenom} ${eleve.nom}` : eleve.nom} {isAdmin && "· ADMIN"}
         </p>
-        <form action="/api/deconnexion" method="POST">
-          <button type="submit" className="text-sm text-ink/40 hover:text-ink transition">
-            Déconnexion
-          </button>
-        </form>
+        <div className="flex items-center gap-3 shrink-0">
+          <BoutonAccueil />
+          <form action="/api/deconnexion" method="POST">
+            <button type="submit" className="text-sm text-ink/40 hover:text-ink transition">
+              Déconnexion
+            </button>
+          </form>
+        </div>
       </div>
+
+      <details className="mb-10 border border-ink/10 rounded-xl bg-white">
+        <summary className="cursor-pointer list-none px-4 py-3 font-semibold text-ink text-sm flex items-center justify-between">
+          Mon profil
+          <span>⌄</span>
+        </summary>
+        <div className="px-4 pb-4 pt-1 border-t border-ink/5">
+          <ProfilForm prenom={eleve.prenom} nom={eleve.nom} photoChemin={eleve.photo_chemin} />
+        </div>
+      </details>
 
       <h1 className="font-display font-extrabold text-3xl text-ink mb-8">
         {isAdmin ? "Tous les cours" : "Mon cours"}

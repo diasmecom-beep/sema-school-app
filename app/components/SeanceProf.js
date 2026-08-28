@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { formaterDateLongue } from "@/lib/calendrier";
 
-const ICONES = { pdf: "📄", image: "🖼️", lien: "🔗" };
+const ICONES = { pdf: "📄", image: "🖼️", lien: "🔗", audio: "🎧" };
+const ACCEPT_PAR_TYPE = { pdf: "application/pdf", image: "image/*", audio: "audio/*,.mp3" };
 
 function toDatetimeLocal(iso) {
   if (!iso) return "";
@@ -147,6 +148,7 @@ export default function SeanceProf({ seance: seanceInitiale, devoirsInitiaux }) 
             >
               <option value="pdf">PDF</option>
               <option value="image">Image</option>
+              <option value="audio">Audio (MP3)</option>
               <option value="lien">Lien</option>
             </select>
             <input
@@ -168,7 +170,7 @@ export default function SeanceProf({ seance: seanceInitiale, devoirsInitiaux }) 
               <input
                 type="file"
                 name="fichier"
-                accept={typeMateriau === "pdf" ? "application/pdf" : "image/*"}
+                accept={ACCEPT_PAR_TYPE[typeMateriau]}
                 className="text-xs file:mr-2 file:rounded-full file:border-0 file:bg-white file:px-3 file:py-1.5 file:text-xs file:font-semibold"
               />
             )}
