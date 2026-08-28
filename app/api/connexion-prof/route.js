@@ -14,13 +14,19 @@ export async function POST(request) {
       return NextResponse.json({ error: "Identifiant et code d'accès requis." }, { status: 400 });
     }
 
+    // Identifiant et code sont toujours générés en majuscules — on normalise
+    // la casse et les espaces superflus pour éviter les échecs de connexion
+    // dus à une saisie ou un copier-coller légèrement différents.
+    const identifiantNormalise = identifiant.trim().toUpperCase();
+    const codeNormalise = codeAcces.trim().toUpperCase();
+
     const { data: row, error } = await supabaseAdmin
       .from("profs")
       .select("identifiant, code_acces_hash, statut")
-      .eq("identifiant", identifiant.trim())
+      .eq("identifiant", identifiantNormalise)
       .single();
 
-    if (error || !row || !verifyCode(codeAcces.trim(), row.code_acces_hash)) {
+    if (error || !row || !verifyCode(codeNormalise, row.code_acces_hash)) {
       return NextResponse.json({ error: "Identifiant ou code d'accès incorrect." }, { status: 401 });
     }
 

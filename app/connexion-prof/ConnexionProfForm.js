@@ -47,17 +47,23 @@ export default function ConnexionProfForm() {
       )}
 
       <input
-        className="w-full border border-ink/20 rounded-lg px-4 py-3 mb-4"
+        className="w-full border border-ink/20 rounded-lg px-4 py-3 mb-4 uppercase placeholder:normal-case"
         placeholder="Identifiant (ex. PROF-XXXXXX)"
         value={identifiant}
-        onChange={(e) => setIdentifiant(e.target.value)}
+        onChange={(e) => setIdentifiant(e.target.value.toUpperCase())}
+        autoCapitalize="characters"
+        autoCorrect="off"
+        spellCheck={false}
       />
       <input
-        className="w-full border border-ink/20 rounded-lg px-4 py-3 mb-6"
+        className="w-full border border-ink/20 rounded-lg px-4 py-3 mb-6 uppercase placeholder:normal-case"
         placeholder="Code d'accès"
         value={codeAcces}
-        onChange={(e) => setCodeAcces(e.target.value)}
+        onChange={(e) => setCodeAcces(e.target.value.toUpperCase())}
         onKeyDown={(e) => e.key === "Enter" && seConnecter()}
+        autoCapitalize="characters"
+        autoCorrect="off"
+        spellCheck={false}
       />
       <button
         onClick={seConnecter}
