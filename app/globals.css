@@ -26,6 +26,12 @@ body {
   animation: marquee 22s linear infinite;
 }
 
+/* Même défilement que .animate-marquee (droite -> gauche, boucle infinie),
+   en plus lent - pour une bande de photos agréable à regarder. */
+.animate-marquee-slow {
+  animation: marquee 32s linear infinite;
+}
+
 @keyframes typing-dot-1 {
   0%, 8% {
     opacity: 0;

@@ -26,12 +26,12 @@ export default async function AnnouncementBar() {
 
   return (
     <div className="bg-sage-800 text-cream">
-      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3 sm:gap-6">
         <a href="/" className="flex flex-col shrink-0">
           <svg
             viewBox="0 0 1356 631"
             preserveAspectRatio="xMinYMid meet"
-            className="h-24 w-52 shrink-0"
+            className="h-14 w-32 sm:h-24 sm:w-52 shrink-0"
           >
             <image href="/images/logo.png" x="0" y="0" width="1356" height="631" />
             <circle cx="1195.5" cy="426.5" r="11" fill="white" className="animate-typing-dot-1" />
@@ -53,17 +53,17 @@ export default async function AnnouncementBar() {
           </div>
         </div>
 
-        <div className="shrink-0 flex items-center gap-4">
+        <div className="shrink-0 flex items-center gap-2 sm:gap-4">
           <a
             href={bouton.href}
-            className={`hidden sm:block ${bouton.classe} text-cream text-sm font-semibold px-4 py-2 rounded-full hover:opacity-90 transition`}
+            className={`${bouton.classe} text-cream text-xs sm:text-sm font-semibold px-3 py-1.5 sm:px-4 sm:py-2 rounded-full hover:opacity-90 transition whitespace-nowrap`}
           >
             {bouton.label}
           </a>
           <a
             href="/"
             aria-label="Accueil"
-            className="h-9 w-9 rounded-full bg-terracotta-600 flex items-center justify-center text-cream hover:opacity-90 transition"
+            className="h-9 w-9 shrink-0 rounded-full bg-terracotta-600 flex items-center justify-center text-cream hover:opacity-90 transition"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M3 11l9-8 9 8" strokeLinecap="round" strokeLinejoin="round" />
