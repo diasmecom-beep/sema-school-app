@@ -2,7 +2,12 @@ import AnnouncementBar from "../components/AnnouncementBar";
 import Footer from "../components/Footer";
 import { FORMULES } from "@/lib/content";
 
-export default function TarifsPage() {
+export default function TarifsPage({ searchParams }) {
+  // Si on arrive ici après avoir cliqué sur une langue précise (voir
+  // Schedule.js / Hero.js), on transmet ce choix au formulaire d'inscription
+  // pour ne jamais faire remplir le formulaire deux fois de suite.
+  const groupe = searchParams?.groupe;
+
   return (
     <div>
       <AnnouncementBar />
@@ -53,7 +58,7 @@ export default function TarifsPage() {
                 </div>
 
                 <a
-                  href={`/inscription?formule=${f.id}`}
+                  href={`/inscription?formule=${f.id}${groupe ? `&groupe=${groupe}` : ""}`}
                   className={`text-center font-semibold rounded-full py-3 mb-6 transition-colors ${
                     f.populaire
                       ? "bg-white text-sage-900 hover:opacity-90"

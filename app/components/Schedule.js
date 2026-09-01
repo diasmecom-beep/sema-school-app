@@ -14,7 +14,7 @@ export default function Schedule() {
                 {groupes.map((g) => (
                   <a
                     key={g.id}
-                    href={`/inscription?groupe=${g.id}`}
+                    href={`/tarifs?groupe=${g.id}`}
                     className="flex items-center justify-between border border-ink/20 rounded-2xl px-4 py-4 hover:border-terracotta-600 transition"
                   >
                     <span className="font-semibold text-ink">

@@ -15,7 +15,7 @@ export default function Hero() {
             intermédiaire.
           </h1>
           <a
-            href="/inscription"
+            href="/tarifs"
             className="mt-10 inline-block bg-terracotta-600 text-cream font-semibold px-8 py-4 rounded-full hover:opacity-90 transition"
           >
             Inscription
