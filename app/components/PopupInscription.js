@@ -68,7 +68,7 @@ export default function PopupInscription() {
 
         <div className="p-5 text-center">
           <a
-            href="/inscription"
+            href="/tarifs"
             className="block w-full bg-terracotta-600 text-cream font-semibold py-3 rounded-full hover:opacity-90 transition"
           >
             Je m&rsquo;inscris

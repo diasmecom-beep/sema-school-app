@@ -50,26 +50,30 @@ export async function POST(request) {
       );
     }
 
-    const { error } = await supabaseAdmin.from("inscriptions").insert({
-      prenom: prenom.trim(),
-      nom: nom.trim(),
-      annee_naissance: anneeNaissance.trim(),
-      telephone: telephone.trim(),
-      email: email.trim(),
-      pays_residence: paysResidence.trim(),
-      groupe_id: groupeId,
-      attentes,
-      connu_via: connuVia,
-      formule_id: formuleId || null,
-      statut: "en_attente",
-    });
+    const { data, error } = await supabaseAdmin
+      .from("inscriptions")
+      .insert({
+        prenom: prenom.trim(),
+        nom: nom.trim(),
+        annee_naissance: anneeNaissance.trim(),
+        telephone: telephone.trim(),
+        email: email.trim(),
+        pays_residence: paysResidence.trim(),
+        groupe_id: groupeId,
+        attentes,
+        connu_via: connuVia,
+        formule_id: formuleId || null,
+        statut: "en_attente",
+      })
+      .select("id")
+      .single();
 
     if (error) {
       console.error("Erreur création inscription:", error);
       return NextResponse.json({ error: "Impossible d'enregistrer l'inscription." }, { status: 500 });
     }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, id: data.id });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Une erreur est survenue." }, { status: 500 });

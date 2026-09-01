@@ -12,6 +12,12 @@ export default function ProfilForm({ prenom: prenomInitial, nom: nomInitial, pho
   const [envoi, setEnvoi] = useState(false);
   const [message, setMessage] = useState("");
 
+  const [motDePasseOuvert, setMotDePasseOuvert] = useState(false);
+  const [motDePasseActuel, setMotDePasseActuel] = useState("");
+  const [nouveauMotDePasse, setNouveauMotDePasse] = useState("");
+  const [envoiMotDePasse, setEnvoiMotDePasse] = useState(false);
+  const [messageMotDePasse, setMessageMotDePasse] = useState("");
+
   const photoUrl = apercu || (photoChemin ? `/api/fichier?chemin=${encodeURIComponent(photoChemin)}` : null);
   const initiales = `${prenom?.[0] || ""}${nom?.[0] || ""}`.toUpperCase() || "?";
 
@@ -42,7 +48,33 @@ export default function ProfilForm({ prenom: prenomInitial, nom: nomInitial, pho
     }
   }
 
+  async function changerMotDePasse(e) {
+    e.preventDefault();
+    setEnvoiMotDePasse(true);
+    setMessageMotDePasse("");
+    try {
+      const res = await fetch("/api/profil/mot-de-passe", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ motDePasseActuel, nouveauMotDePasse }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        setMessageMotDePasse(data.error);
+        return;
+      }
+      setMessageMotDePasse("Mot de passe mis à jour ✓");
+      setMotDePasseActuel("");
+      setNouveauMotDePasse("");
+    } catch {
+      setMessageMotDePasse("Échec de l'enregistrement.");
+    } finally {
+      setEnvoiMotDePasse(false);
+    }
+  }
+
   return (
+    <div className="w-full flex flex-col gap-6">
     <form onSubmit={enregistrer} className="flex flex-col sm:flex-row gap-6 items-start">
       <div className="flex flex-col items-center gap-2 shrink-0">
         <label className="cursor-pointer group relative">
@@ -98,5 +130,49 @@ export default function ProfilForm({ prenom: prenomInitial, nom: nomInitial, pho
         </div>
       </div>
     </form>
+
+    <div>
+      <button
+        type="button"
+        onClick={() => setMotDePasseOuvert((v) => !v)}
+        className="text-xs font-semibold text-terracotta-600 hover:underline"
+      >
+        {motDePasseOuvert ? "Annuler" : "Changer mon mot de passe"}
+      </button>
+
+      {motDePasseOuvert && (
+        <form onSubmit={changerMotDePasse} className="mt-3 grid sm:grid-cols-2 gap-3 max-w-md">
+          <label className="block">
+            <span className="text-xs font-semibold text-ink/60">Mot de passe actuel</span>
+            <input
+              type="password"
+              value={motDePasseActuel}
+              onChange={(e) => setMotDePasseActuel(e.target.value)}
+              className="mt-1 w-full text-sm rounded-lg border border-ink/15 px-3 py-2"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs font-semibold text-ink/60">Nouveau mot de passe</span>
+            <input
+              type="password"
+              value={nouveauMotDePasse}
+              onChange={(e) => setNouveauMotDePasse(e.target.value)}
+              className="mt-1 w-full text-sm rounded-lg border border-ink/15 px-3 py-2"
+            />
+          </label>
+          <div className="sm:col-span-2 flex items-center gap-3">
+            <button
+              type="submit"
+              disabled={envoiMotDePasse}
+              className="text-xs font-semibold bg-sage-800 text-cream rounded-full px-4 py-2 hover:bg-sage-900 transition disabled:opacity-40"
+            >
+              {envoiMotDePasse ? "..." : "Valider le nouveau mot de passe"}
+            </button>
+            {messageMotDePasse && <span className="text-xs text-ink/60">{messageMotDePasse}</span>}
+          </div>
+        </form>
+      )}
+    </div>
+    </div>
   );
 }

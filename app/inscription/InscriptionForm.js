@@ -72,8 +72,14 @@ export default function InscriptionForm() {
         setErrorMsg(data.error);
         return;
       }
-      if (formuleChoisie?.stripeLink) {
-        window.location.href = formuleChoisie.stripeLink;
+      if (formuleChoisie?.stripeLink && data.id) {
+        // client_reference_id permet, une fois le paiement confirmé, de
+        // retrouver cette inscription précise depuis la session Stripe (voir
+        // lib/confirmerPaiement.js) pour créer le compte élève automatiquement.
+        const url = new URL(formuleChoisie.stripeLink);
+        url.searchParams.set("client_reference_id", data.id);
+        url.searchParams.set("prefilled_email", form.email.trim());
+        window.location.href = url.toString();
       } else {
         router.push("/tarifs");
       }
