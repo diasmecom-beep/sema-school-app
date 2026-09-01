@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { GROUPES } from "@/lib/content";
+import { GROUPES, FORMULES } from "@/lib/content";
 
 const ATTENTES = ["Professionnelles", "Personnelles", "Loisirs", "Autres"];
 const CONNU_VIA = ["Réseaux sociaux", "Site internet", "Evenement", "Bouche à oreille", "Autre"];
@@ -13,6 +13,8 @@ const labelClass = "text-terracotta-600 font-semibold text-sm mb-2 block";
 export default function InscriptionForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const formuleId = searchParams.get("formule") || "";
+  const formuleChoisie = FORMULES.find((f) => f.id === formuleId);
 
   const [form, setForm] = useState({
     prenom: "",
@@ -63,14 +65,18 @@ export default function InscriptionForm() {
       const res = await fetch("/api/inscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, formuleId }),
       });
       const data = await res.json();
       if (data.error) {
         setErrorMsg(data.error);
         return;
       }
-      router.push("/tarifs");
+      if (formuleChoisie?.stripeLink) {
+        window.location.href = formuleChoisie.stripeLink;
+      } else {
+        router.push("/tarifs");
+      }
     } catch {
       setErrorMsg("Une erreur est survenue.");
     } finally {
@@ -84,6 +90,13 @@ export default function InscriptionForm() {
         Complétez les informations suivantes
       </h1>
       <hr className="border-ink/10 mb-8" />
+
+      {formuleChoisie && (
+        <p className="bg-sage-800/10 text-sage-900 text-sm rounded-lg px-4 py-3 mb-6">
+          Formule choisie : <strong>{formuleChoisie.nom}</strong> - {formuleChoisie.prix}€
+          {formuleChoisie.frequence ? ` (${formuleChoisie.frequence.toLowerCase()})` : ""}
+        </p>
+      )}
 
       {errorMsg && (
         <p className="bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3 mb-6">{errorMsg}</p>
@@ -200,7 +213,9 @@ export default function InscriptionForm() {
           Continuer vers le paiement
         </button>
         <p className="text-xs text-ink/50 text-center">
-          Après validation, choisis ta formule d&rsquo;abonnement sur la page suivante.
+          {formuleChoisie
+            ? "Après validation, tu seras redirigé·e vers le paiement sécurisé Stripe."
+            : "Après validation, choisis ta formule d’abonnement sur la page suivante."}
         </p>
       </div>
     </div>

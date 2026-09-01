@@ -24,6 +24,7 @@ export async function POST(request) {
       groupeId,
       attentes,
       connuVia,
+      formuleId,
     } = await request.json();
 
     if (
@@ -59,6 +60,7 @@ export async function POST(request) {
       groupe_id: groupeId,
       attentes,
       connu_via: connuVia,
+      formule_id: formuleId || null,
       statut: "en_attente",
     });
 
