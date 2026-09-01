@@ -12,48 +12,66 @@ export default function TarifsPage() {
           Des formules flexibles pour apprendre où vous voulez, quand vous voulez.
         </p>
 
-        <div className="grid md:grid-cols-4 gap-6 text-left">
+        <div className="grid md:grid-cols-4 gap-6 text-left items-stretch">
           {FORMULES.map((f) => (
             <div
               key={f.id}
-              className={`rounded-2xl p-6 flex flex-col ${
-                f.populaire ? "bg-sage-800 text-cream" : "bg-cream text-ink"
+              className={`relative overflow-hidden rounded-2xl flex flex-col transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl ${
+                f.populaire
+                  ? "bg-sage-800 text-cream hover:shadow-sage-900/30"
+                  : "bg-cream text-ink hover:shadow-ink/10"
               }`}
             >
+              {/* Bandeau "Le plus populaire" - en dehors du flux normal, donc
+                  ne décale pas le contenu des autres cartes qui ne l'ont pas. */}
               {f.populaire && (
-                <span className="text-xs font-bold text-terracotta-500 mb-2">Le plus populaire</span>
+                <div className="absolute top-0 inset-x-0 h-7 bg-terracotta-500 flex items-center justify-center">
+                  <span className="text-[11px] font-bold uppercase tracking-wide text-white">
+                    Le plus populaire
+                  </span>
+                </div>
               )}
-              <p className="font-semibold">{f.nom}</p>
-              <p className="font-display font-extrabold text-4xl my-3">
-                {f.prix}€
-                {f.frequence && (
-                  <span className="text-sm font-body font-normal block opacity-70">{f.frequence}</span>
-                )}
-              </p>
-              <p className={`text-xs mb-4 ${f.populaire ? "text-cream/70" : "text-ink/50"}`}>{f.valabilite}</p>
-              {f.conditions && (
-                <p className={`text-xs mb-4 ${f.populaire ? "text-cream/70" : "text-ink/50"}`}>
-                  Conditions : {f.conditions}
-                </p>
-              )}
-              <a
-                href={`/inscription?formule=${f.id}`}
-                className={`text-center font-semibold rounded-full py-3 mb-6 transition ${
-                  f.populaire
-                    ? "bg-white text-sage-900 hover:opacity-90"
-                    : "bg-brown-600 text-cream hover:bg-brown-700"
-                }`}
-              >
-                S&rsquo;inscrire
-              </a>
-              <ul className={`space-y-2 text-sm mt-auto ${f.populaire ? "text-cream/90" : "text-ink/70"}`}>
-                {f.features.map((ft) => (
-                  <li key={ft} className="flex gap-2">
-                    <span>✓</span>
-                    {ft}
-                  </li>
-                ))}
-              </ul>
+
+              <div className="flex flex-col flex-1 pt-10 px-6 pb-6">
+                {/* Hauteur réservée identique sur les 4 cartes, pour que les
+                    boutons "S'inscrire" démarrent tous à la même hauteur
+                    malgré la fréquence ou les conditions en plus/en moins. */}
+                <div className="min-h-[176px]">
+                  <p className="font-semibold">{f.nom}</p>
+                  <p className="font-display font-extrabold text-4xl my-3">
+                    {f.prix}€
+                    {f.frequence && (
+                      <span className="text-sm font-body font-normal block opacity-70">{f.frequence}</span>
+                    )}
+                  </p>
+                  <p className={`text-xs mb-2 ${f.populaire ? "text-cream/70" : "text-ink/50"}`}>{f.valabilite}</p>
+                  {f.conditions && (
+                    <p className={`text-xs ${f.populaire ? "text-cream/70" : "text-ink/50"}`}>
+                      Conditions : {f.conditions}
+                    </p>
+                  )}
+                </div>
+
+                <a
+                  href={`/inscription?formule=${f.id}`}
+                  className={`text-center font-semibold rounded-full py-3 mb-6 transition-colors ${
+                    f.populaire
+                      ? "bg-white text-sage-900 hover:opacity-90"
+                      : "bg-brown-600 text-cream hover:bg-brown-700"
+                  }`}
+                >
+                  S&rsquo;inscrire
+                </a>
+
+                <ul className={`space-y-2 text-sm mt-auto ${f.populaire ? "text-cream/90" : "text-ink/70"}`}>
+                  {f.features.map((ft) => (
+                    <li key={ft} className="flex gap-2">
+                      <span>✓</span>
+                      {ft}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           ))}
         </div>
