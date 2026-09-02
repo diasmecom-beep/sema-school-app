@@ -13,6 +13,17 @@ const ATTENDUS = {
   WHATSAPP_LINK_LINGALA_INTERMEDIAIRE: "https://chat.whatsapp.com/EkrSDHoONla8zmSQf4hScX?mode=gi_t",
   WHATSAPP_LINK_KIKONGO_DEBUTANT: "https://chat.whatsapp.com/FgtkZtLEWYnGmbbQxS8O3L?mode=gi_t",
   WHATSAPP_LINK_KIKONGO_INTERMEDIAIRE: "https://chat.whatsapp.com/LqHwv1RPpoM5jJHjIhE7UD?mode=gi_t",
+  // Liens Zoom - censés être inchangés depuis la dernière lecture de
+  // .env.local (voir scripts/migration précédentes) - on vérifie juste
+  // qu'ils sont toujours bien présents et identiques en production.
+  ZOOM_LINK_TSHILUBA_DEBUTANT: "https://us06web.zoom.us/j/89661444000",
+  ZOOM_LINK_TSHILUBA_INTERMEDIAIRE: "https://us06web.zoom.us/j/89776576061",
+  ZOOM_LINK_SWAHILI_DEBUTANT: "https://us06web.zoom.us/j/85975339827",
+  ZOOM_LINK_SWAHILI_INTERMEDIAIRE: "https://us06web.zoom.us/j/81318590198",
+  ZOOM_LINK_LINGALA_DEBUTANT: "https://us06web.zoom.us/j/86126592391",
+  ZOOM_LINK_LINGALA_INTERMEDIAIRE: "https://us06web.zoom.us/j/81891945344",
+  ZOOM_LINK_KIKONGO_DEBUTANT: "https://us06web.zoom.us/j/82615398523",
+  ZOOM_LINK_KIKONGO_INTERMEDIAIRE: "https://us06web.zoom.us/j/86549117356",
 };
 
 export async function GET() {
