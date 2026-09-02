@@ -71,6 +71,13 @@ export default function ConnexionForm() {
       >
         Se connecter
       </button>
+
+      <p className="text-center text-xs text-ink/50 mt-6">
+        Tu es prof ?{" "}
+        <a href="/connexion-prof" className="text-terracotta-600 font-semibold hover:underline">
+          Connecte-toi ici
+        </a>
+      </p>
     </div>
   );
 }
