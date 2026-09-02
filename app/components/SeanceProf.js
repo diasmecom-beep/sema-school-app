@@ -15,7 +15,41 @@ function toDatetimeLocal(iso) {
 
 export default function SeanceProf({ seance: seanceInitiale, devoirsInitiaux, ouvertParDefaut, enAvant }) {
   const [seance, setSeance] = useState(seanceInitiale);
-  const [devoirs] = useState(devoirsInitiaux || []);
+  const [devoirs, setDevoirs] = useState(devoirsInitiaux || []);
+  const [devoirOuvert, setDevoirOuvert] = useState(null);
+  const [note, setNote] = useState("");
+  const [commentaire, setCommentaire] = useState("");
+  const [envoiCorrection, setEnvoiCorrection] = useState(false);
+
+  function ouvrirCorrection(d) {
+    setDevoirOuvert(d.id);
+    setNote(d.note || "");
+    setCommentaire(d.commentaire_prof || "");
+  }
+
+  async function enregistrerCorrection(devoirId) {
+    setEnvoiCorrection(true);
+    try {
+      const res = await fetch(`/api/devoirs/${devoirId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ note, commentaire }),
+      });
+      const data = await res.json();
+      if (!data.error) {
+        setDevoirs((ds) =>
+          ds.map((d) =>
+            d.id === devoirId
+              ? { ...d, note: note.trim() || null, commentaire_prof: commentaire.trim() || null, commente_at: new Date().toISOString() }
+              : d
+          )
+        );
+        setDevoirOuvert(null);
+      }
+    } finally {
+      setEnvoiCorrection(false);
+    }
+  }
 
   const [typeMateriau, setTypeMateriau] = useState("pdf");
   const [titreMateriau, setTitreMateriau] = useState("");
@@ -240,18 +274,76 @@ export default function SeanceProf({ seance: seanceInitiale, devoirsInitiaux, ou
           {devoirs.length === 0 ? (
             <p className="text-sm text-ink/40">Aucun devoir remis pour l&rsquo;instant.</p>
           ) : (
-            <ul className="space-y-1.5">
+            <ul className="space-y-2">
               {devoirs.map((d) => (
-                <li key={d.id} className="flex items-center justify-between gap-2 text-sm">
-                  <a
-                    href={`/api/fichier?chemin=${encodeURIComponent(d.chemin_storage)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-terracotta-600 hover:underline"
-                  >
-                    {d.eleveNom || d.eleve_identifiant} - {d.fichier_nom}
-                  </a>
-                  <span className="text-xs text-ink/40">{new Date(d.soumis_at).toLocaleDateString("fr-BE")}</span>
+                <li key={d.id} className="text-sm">
+                  <div className="flex items-center justify-between gap-2">
+                    <a
+                      href={`/api/fichier?chemin=${encodeURIComponent(d.chemin_storage)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-terracotta-600 hover:underline"
+                    >
+                      {d.eleveNom || d.eleve_identifiant} - {d.fichier_nom}
+                    </a>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-xs text-ink/40">{new Date(d.soumis_at).toLocaleDateString("fr-BE")}</span>
+                      <button
+                        type="button"
+                        onClick={() => (devoirOuvert === d.id ? setDevoirOuvert(null) : ouvrirCorrection(d))}
+                        className="text-xs font-semibold text-sage-800 hover:underline"
+                      >
+                        {d.commente_at ? "Modifier la correction" : "Corriger"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {d.commente_at && devoirOuvert !== d.id && (
+                    <div className="mt-1.5 bg-cream rounded-lg px-3 py-2 text-xs text-ink/70">
+                      {d.note && (
+                        <p>
+                          <span className="font-semibold">Note :</span> {d.note}
+                        </p>
+                      )}
+                      {d.commentaire_prof && <p className="whitespace-pre-wrap mt-0.5">{d.commentaire_prof}</p>}
+                    </div>
+                  )}
+
+                  {devoirOuvert === d.id && (
+                    <div className="mt-1.5 bg-cream rounded-lg p-2.5 space-y-2">
+                      <input
+                        type="text"
+                        placeholder="Note (ex. 8/10, Très bien...)"
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                        className="w-full text-xs rounded-lg border border-ink/15 px-2.5 py-1.5"
+                      />
+                      <textarea
+                        placeholder="Commentaire pour l'élève"
+                        value={commentaire}
+                        onChange={(e) => setCommentaire(e.target.value)}
+                        rows={2}
+                        className="w-full text-xs rounded-lg border border-ink/15 px-2.5 py-1.5"
+                      />
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => enregistrerCorrection(d.id)}
+                          disabled={envoiCorrection}
+                          className="text-xs font-semibold bg-terracotta-600 text-cream rounded-full px-3 py-1.5 hover:opacity-90 transition disabled:opacity-40"
+                        >
+                          {envoiCorrection ? "..." : "Enregistrer la correction"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDevoirOuvert(null)}
+                          className="text-xs text-ink/50 hover:underline"
+                        >
+                          Annuler
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>

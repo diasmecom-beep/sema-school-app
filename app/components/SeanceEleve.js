@@ -102,10 +102,25 @@ export default function SeanceEleve({ seance, devoirInitial, ouvertParDefaut, en
 
         <div className="pt-2 border-t border-ink/5">
           {devoir ? (
-            <p className="text-sm text-green-700">
-              ✓ Devoir remis : {devoir.fichier_nom} (
-              {new Date(devoir.soumis_at).toLocaleDateString("fr-BE")})
-            </p>
+            <div>
+              <p className="text-sm text-green-700">
+                ✓ Devoir remis : {devoir.fichier_nom} (
+                {new Date(devoir.soumis_at).toLocaleDateString("fr-BE")})
+              </p>
+              {devoir.commente_at && (
+                <div className="mt-2 bg-cream rounded-lg px-3 py-2">
+                  <p className="text-xs font-semibold text-ink/60 mb-1">Correction du prof</p>
+                  {devoir.note && (
+                    <p className="text-sm text-ink">
+                      <span className="font-semibold">Note :</span> {devoir.note}
+                    </p>
+                  )}
+                  {devoir.commentaire_prof && (
+                    <p className="text-sm text-ink whitespace-pre-wrap mt-0.5">{devoir.commentaire_prof}</p>
+                  )}
+                </div>
+              )}
+            </div>
           ) : (
             <form onSubmit={soumettreDevoir} className="flex flex-wrap items-center gap-2">
               <input
