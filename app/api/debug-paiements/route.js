@@ -32,5 +32,13 @@ export async function GET() {
     };
   });
 
-  return NextResponse.json({ totalSessions: sessions.length, resultat });
+  const toutesLesSessions = sessions.map((s) => ({
+    email: s.customer_details?.email || s.customer_email || null,
+    nom: s.customer_details?.name || null,
+    payment_status: s.payment_status,
+    montant: s.amount_total ? s.amount_total / 100 : null,
+    date: new Date(s.created * 1000).toISOString(),
+  }));
+
+  return NextResponse.json({ totalSessions: sessions.length, resultat, toutesLesSessions });
 }
