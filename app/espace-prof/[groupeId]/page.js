@@ -59,7 +59,11 @@ export default async function EspaceProfGroupePage({ params }) {
 
   return (
     <div className="min-h-screen bg-cream flex flex-col">
-      <EspaceHeader label={estAdmin ? "Espace admin" : "Espace prof"} actionDeconnexion="/api/deconnexion-prof" />
+      <EspaceHeader
+        label={estAdmin ? "Espace admin" : "Espace prof"}
+        actionDeconnexion="/api/deconnexion-prof"
+        inscriptionsHref={estAdmin ? "/admin/inscriptions" : undefined}
+      />
 
       <div className="max-w-6xl mx-auto px-6 py-12 flex-1 w-full">
         <details className="mb-8 border border-ink/10 rounded-xl bg-white shadow-sm">

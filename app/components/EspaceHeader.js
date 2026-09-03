@@ -2,7 +2,7 @@ import BoutonAccueil from "./BoutonAccueil";
 
 // En-tête commun aux espaces connectés (élève, prof, admin) : fine bande
 // d'accent, logo, mention de l'espace, bouton accueil et déconnexion.
-export default function EspaceHeader({ label, actionDeconnexion }) {
+export default function EspaceHeader({ label, actionDeconnexion, inscriptionsHref }) {
   return (
     <>
       <div className="h-1.5 bg-sage-900" aria-hidden="true" />
@@ -25,6 +25,14 @@ export default function EspaceHeader({ label, actionDeconnexion }) {
             </span>
           </div>
           <div className="flex items-center gap-3 shrink-0 ml-auto">
+            {inscriptionsHref && (
+              <a
+                href={inscriptionsHref}
+                className="text-xs sm:text-sm font-semibold bg-terracotta-600 text-cream rounded-full px-3 py-1.5 hover:opacity-90 transition whitespace-nowrap"
+              >
+                Inscriptions
+              </a>
+            )}
             <BoutonAccueil />
             <form action={actionDeconnexion} method="POST">
               <button type="submit" className="text-xs sm:text-sm text-cream/70 hover:text-cream transition">
