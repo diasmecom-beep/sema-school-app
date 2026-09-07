@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { GROUPES } from "@/lib/content";
+import { GROUPES, FORMULES } from "@/lib/content";
+import { envoyerNotificationInscription } from "@/lib/email";
 
 const ATTENTES = ["Professionnelles", "Personnelles", "Loisirs", "Autres"];
 const CONNU_VIA = ["Réseaux sociaux", "Site internet", "Evenement", "Bouche à oreille", "Autre"];
@@ -72,6 +73,24 @@ export async function POST(request) {
       console.error("Erreur création inscription:", error);
       return NextResponse.json({ error: "Impossible d'enregistrer l'inscription." }, { status: 500 });
     }
+
+    // La notification ne doit jamais faire échouer l'inscription elle-même
+    // si l'e-mail ne part pas - erreurs déjà interceptées dans la fonction.
+    // On l'attend quand même (await) : sur Vercel, une fonction serverless
+    // peut se terminer juste après la réponse, avant qu'une promesse "en
+    // arrière-plan" non attendue n'ait eu le temps de s'exécuter.
+    const groupe = GROUPES.find((g) => g.id === groupeId);
+    const formule = FORMULES.find((f) => f.id === formuleId);
+    await envoyerNotificationInscription({
+      prenom: prenom.trim(),
+      nom: nom.trim(),
+      email: email.trim(),
+      telephone: telephone.trim(),
+      coursLabel: groupe ? `${groupe.langue} - ${groupe.niveau}` : groupeId,
+      formuleLabel: formule?.nom,
+      attentes,
+      connuVia,
+    });
 
     return NextResponse.json({ ok: true, id: data.id });
   } catch (err) {
