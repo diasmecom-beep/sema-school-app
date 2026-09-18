@@ -6,6 +6,9 @@ import { BUCKET_FICHIERS, cheminMateriau, groupeIdDepuisSeanceId } from "@/lib/f
 
 const TYPES_FICHIER = { pdf: "application/pdf", image: "image", audio: "audio/mpeg" };
 const TYPES_VALIDES = ["pdf", "image", "lien", "audio"];
+// Doit rester ≤ à la limite configurée sur le bucket "sema-fichiers" dans
+// Supabase (Storage > sema-fichiers > Edit bucket > File size limit).
+const TAILLE_MAX_OCTETS = 25 * 1024 * 1024;
 
 export async function POST(request) {
   if (!supabaseAdmin) {
@@ -43,13 +46,20 @@ export async function POST(request) {
     if (!fichier || typeof fichier === "string") {
       return NextResponse.json({ error: "Fichier manquant." }, { status: 400 });
     }
+    if (fichier.size > TAILLE_MAX_OCTETS) {
+      return NextResponse.json(
+        { error: `Le fichier dépasse la taille maximale autorisée (${TAILLE_MAX_OCTETS / (1024 * 1024)} Mo).` },
+        { status: 400 }
+      );
+    }
     cheminStorage = cheminMateriau(seanceId, fichier.name);
     const buffer = Buffer.from(await fichier.arrayBuffer());
     const { error: uploadError } = await supabaseAdmin.storage
       .from(BUCKET_FICHIERS)
       .upload(cheminStorage, buffer, { contentType: fichier.type || TYPES_FICHIER[type] });
     if (uploadError) {
-      return NextResponse.json({ error: "Échec de l'envoi du fichier." }, { status: 500 });
+      console.error("Échec envoi fichier matériau:", uploadError);
+      return NextResponse.json({ error: `Échec de l'envoi du fichier : ${uploadError.message}` }, { status: 500 });
     }
     url = `/api/fichier?chemin=${encodeURIComponent(cheminStorage)}`;
   } else if (!lien) {
