@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getEleveConnecte } from "@/lib/eleves";
 import { getProfConnecte } from "@/lib/profs";
-import { BUCKET_FICHIERS, cheminAvatar } from "@/lib/fichiers";
+import { BUCKET_FICHIERS, TAILLE_MAX_OCTETS, cheminAvatar } from "@/lib/fichiers";
 
 // Met à jour le profil (prénom, nom, photo) de la personne connectée —
 // élève ou prof, peu importe, on détecte via la session active. Chacun ne
@@ -32,13 +32,20 @@ export async function PATCH(request) {
     if (!photo.type.startsWith("image/")) {
       return NextResponse.json({ error: "La photo doit être une image." }, { status: 400 });
     }
+    if (photo.size > TAILLE_MAX_OCTETS) {
+      return NextResponse.json(
+        { error: `La photo dépasse la taille maximale autorisée (${TAILLE_MAX_OCTETS / (1024 * 1024)} Mo).` },
+        { status: 400 }
+      );
+    }
     const cheminStorage = cheminAvatar(identite.identifiant, photo.name);
     const buffer = Buffer.from(await photo.arrayBuffer());
     const { error: uploadError } = await supabaseAdmin.storage
       .from(BUCKET_FICHIERS)
       .upload(cheminStorage, buffer, { contentType: photo.type });
     if (uploadError) {
-      return NextResponse.json({ error: "Échec de l'envoi de la photo." }, { status: 500 });
+      console.error("Échec envoi photo profil:", uploadError);
+      return NextResponse.json({ error: `Échec de l'envoi de la photo : ${uploadError.message}` }, { status: 500 });
     }
     patch.photo_chemin = cheminStorage;
   }

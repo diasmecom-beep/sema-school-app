@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getEleveConnecte } from "@/lib/eleves";
 import { assurerSeance } from "@/lib/seances";
-import { BUCKET_FICHIERS, cheminDevoir, groupeIdDepuisSeanceId } from "@/lib/fichiers";
+import { BUCKET_FICHIERS, TAILLE_MAX_OCTETS, cheminDevoir, groupeIdDepuisSeanceId } from "@/lib/fichiers";
 
 export async function POST(request) {
   if (!supabaseAdmin) {
@@ -22,6 +22,12 @@ export async function POST(request) {
   if (!seanceId || !date || !fichier || typeof fichier === "string") {
     return NextResponse.json({ error: "Fichier manquant." }, { status: 400 });
   }
+  if (fichier.size > TAILLE_MAX_OCTETS) {
+    return NextResponse.json(
+      { error: `Le fichier dépasse la taille maximale autorisée (${TAILLE_MAX_OCTETS / (1024 * 1024)} Mo).` },
+      { status: 400 }
+    );
+  }
 
   const groupeId = groupeIdDepuisSeanceId(seanceId);
   if (eleve.groupe_id !== groupeId && eleve.groupe_id !== "admin-all") {
@@ -36,7 +42,8 @@ export async function POST(request) {
     .from(BUCKET_FICHIERS)
     .upload(cheminStorage, buffer, { contentType: fichier.type || "application/octet-stream" });
   if (uploadError) {
-    return NextResponse.json({ error: "Échec de l'envoi du fichier." }, { status: 500 });
+    console.error("Échec envoi fichier devoir:", uploadError);
+    return NextResponse.json({ error: `Échec de l'envoi du fichier : ${uploadError.message}` }, { status: 500 });
   }
 
   const { data, error } = await supabaseAdmin

@@ -222,7 +222,7 @@ export default function SeanceProf({ seance: seanceInitiale, devoirsInitiaux, ou
             </button>
           </form>
           {typeMateriau !== "lien" && (
-            <p className="text-[11px] text-ink/40 mt-1">Fichier de 25 Mo maximum.</p>
+            <p className="text-[11px] text-ink/40 mt-1">Fichier de 50 Mo maximum.</p>
           )}
           {erreurMateriau && <p className="text-xs text-red-600 mt-1">{erreurMateriau}</p>}
         </div>

@@ -2,13 +2,10 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getProfConnecte } from "@/lib/profs";
 import { assurerSeance } from "@/lib/seances";
-import { BUCKET_FICHIERS, cheminMateriau, groupeIdDepuisSeanceId } from "@/lib/fichiers";
+import { BUCKET_FICHIERS, TAILLE_MAX_OCTETS, cheminMateriau, groupeIdDepuisSeanceId } from "@/lib/fichiers";
 
 const TYPES_FICHIER = { pdf: "application/pdf", image: "image", audio: "audio/mpeg" };
 const TYPES_VALIDES = ["pdf", "image", "lien", "audio"];
-// Doit rester ≤ à la limite configurée sur le bucket "sema-fichiers" dans
-// Supabase (Storage > sema-fichiers > Edit bucket > File size limit).
-const TAILLE_MAX_OCTETS = 25 * 1024 * 1024;
 
 export async function POST(request) {
   if (!supabaseAdmin) {

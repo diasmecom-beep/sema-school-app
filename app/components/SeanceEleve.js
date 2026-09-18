@@ -142,6 +142,7 @@ export default function SeanceEleve({ seance, devoirInitial, ouvertParDefaut, en
           {!devoir && (
             <p className="text-[11px] text-ink/40 mt-1">
               PDF, image ou audio (MP3) - pour un devoir oral, enregistre-toi et dépose le fichier audio.
+              50 Mo maximum.
             </p>
           )}
           {erreur && <p className="text-xs text-red-600 mt-1">{erreur}</p>}
