@@ -2,11 +2,14 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getProfConnecte } from "@/lib/profs";
 import { assurerSeance } from "@/lib/seances";
-import { BUCKET_FICHIERS, TAILLE_MAX_OCTETS, cheminMateriau, groupeIdDepuisSeanceId } from "@/lib/fichiers";
+import { BUCKET_FICHIERS, groupeIdDepuisSeanceId } from "@/lib/fichiers";
 
-const TYPES_FICHIER = { pdf: "application/pdf", image: "image", audio: "audio/mpeg" };
 const TYPES_VALIDES = ["pdf", "image", "lien", "audio"];
 
+// Le fichier lui-même a déjà été envoyé directement à Supabase Storage via
+// une URL signée (voir POST /api/materiaux/upload-url) avant cet appel -
+// on ne reçoit ici que les métadonnées, pas de flux binaire, pour ne pas
+// dépendre de la limite de taille des requêtes de Vercel.
 export async function POST(request) {
   if (!supabaseAdmin) {
     return NextResponse.json({ error: "Supabase n'est pas configuré." }, { status: 500 });
@@ -17,15 +20,10 @@ export async function POST(request) {
     return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
   }
 
-  const form = await request.formData();
-  const seanceId = form.get("seanceId");
-  const date = form.get("date");
-  const type = form.get("type");
-  const titre = form.get("titre")?.toString().trim();
-  const lien = form.get("url")?.toString().trim();
-  const fichier = form.get("fichier");
+  const { seanceId, date, type, titre, url: lien, cheminStorage } = await request.json();
+  const titreNormalise = titre?.trim();
 
-  if (!seanceId || !date || !titre || !TYPES_VALIDES.includes(type)) {
+  if (!seanceId || !date || !titreNormalise || !TYPES_VALIDES.includes(type)) {
     return NextResponse.json({ error: "Champs manquants ou invalides." }, { status: 400 });
   }
 
@@ -36,36 +34,20 @@ export async function POST(request) {
 
   await assurerSeance(groupeId, date);
 
-  let url = lien;
-  let cheminStorage = null;
+  let url = lien?.trim();
 
   if (type !== "lien") {
-    if (!fichier || typeof fichier === "string") {
+    if (!cheminStorage) {
       return NextResponse.json({ error: "Fichier manquant." }, { status: 400 });
     }
-    if (fichier.size > TAILLE_MAX_OCTETS) {
-      return NextResponse.json(
-        { error: `Le fichier dépasse la taille maximale autorisée (${TAILLE_MAX_OCTETS / (1024 * 1024)} Mo).` },
-        { status: 400 }
-      );
-    }
-    cheminStorage = cheminMateriau(seanceId, fichier.name);
-    const buffer = Buffer.from(await fichier.arrayBuffer());
-    const { error: uploadError } = await supabaseAdmin.storage
-      .from(BUCKET_FICHIERS)
-      .upload(cheminStorage, buffer, { contentType: fichier.type || TYPES_FICHIER[type] });
-    if (uploadError) {
-      console.error("Échec envoi fichier matériau:", uploadError);
-      return NextResponse.json({ error: `Échec de l'envoi du fichier : ${uploadError.message}` }, { status: 500 });
-    }
     url = `/api/fichier?chemin=${encodeURIComponent(cheminStorage)}`;
-  } else if (!lien) {
+  } else if (!url) {
     return NextResponse.json({ error: "Lien manquant." }, { status: 400 });
   }
 
   const { data, error } = await supabaseAdmin
     .from("materiaux")
-    .insert({ seance_id: seanceId, type, titre, url, chemin_storage: cheminStorage })
+    .insert({ seance_id: seanceId, type, titre: titreNormalise, url, chemin_storage: type !== "lien" ? cheminStorage : null })
     .select()
     .single();
 

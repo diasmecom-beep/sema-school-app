@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { formaterDateLongue } from "@/lib/calendrier";
+import { supabaseClient } from "@/lib/supabaseClient";
+import { BUCKET_FICHIERS, TAILLE_MAX_OCTETS } from "@/lib/fichiers";
 
 const ICONES = { pdf: "📄", image: "🖼️", lien: "🔗", audio: "🎧" };
 const ACCEPT_PAR_TYPE = { pdf: "application/pdf", image: "image/*", audio: "audio/*,.mp3" };
@@ -78,19 +80,52 @@ export default function SeanceProf({ seance: seanceInitiale, devoirsInitiaux, ou
       setErreurMateriau("Lien requis.");
       return;
     }
+    if (fichier && fichier.size > TAILLE_MAX_OCTETS) {
+      setErreurMateriau(`Le fichier dépasse la taille maximale autorisée (${TAILLE_MAX_OCTETS / (1024 * 1024)} Mo).`);
+      return;
+    }
 
     setEnvoiMateriau(true);
     setErreurMateriau("");
     try {
-      const form = new FormData();
-      form.append("seanceId", seance.id);
-      form.append("date", seance.date);
-      form.append("type", typeMateriau);
-      form.append("titre", titreMateriau.trim());
-      if (typeMateriau === "lien") form.append("url", lienMateriau.trim());
-      else form.append("fichier", fichier);
+      let cheminStorage = null;
 
-      const res = await fetch("/api/materiaux", { method: "POST", body: form });
+      if (typeMateriau !== "lien") {
+        // Le fichier part directement vers Supabase Storage (URL signée),
+        // sans passer par notre serveur - Vercel refuserait toute requête
+        // de plus de ~4,5 Mo sur ses fonctions serverless.
+        const resPrep = await fetch("/api/materiaux/upload-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ seanceId: seance.id, nomFichier: fichier.name, tailleOctets: fichier.size }),
+        });
+        const dataPrep = await resPrep.json();
+        if (dataPrep.error) {
+          setErreurMateriau(dataPrep.error);
+          return;
+        }
+        const { error: uploadErr } = await supabaseClient.storage
+          .from(BUCKET_FICHIERS)
+          .uploadToSignedUrl(dataPrep.chemin, dataPrep.token, fichier);
+        if (uploadErr) {
+          setErreurMateriau("Échec de l'envoi du fichier.");
+          return;
+        }
+        cheminStorage = dataPrep.chemin;
+      }
+
+      const res = await fetch("/api/materiaux", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          seanceId: seance.id,
+          date: seance.date,
+          type: typeMateriau,
+          titre: titreMateriau.trim(),
+          url: typeMateriau === "lien" ? lienMateriau.trim() : undefined,
+          cheminStorage,
+        }),
+      });
       const data = await res.json();
       if (data.error) {
         setErreurMateriau(data.error);

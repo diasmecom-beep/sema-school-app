@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabaseClient } from "@/lib/supabaseClient";
+import { BUCKET_FICHIERS, TAILLE_MAX_OCTETS } from "@/lib/fichiers";
 
 export default function ProfilForm({ prenom: prenomInitial, nom: nomInitial, photoChemin: photoCheminInitial }) {
   const router = useRouter();
@@ -28,11 +30,44 @@ export default function ProfilForm({ prenom: prenomInitial, nom: nomInitial, pho
 
   async function enregistrer(e) {
     e.preventDefault();
+    const photo = e.target.elements.photo?.files?.[0];
+    if (photo && photo.size > TAILLE_MAX_OCTETS) {
+      setMessage(`La photo dépasse la taille maximale autorisée (${TAILLE_MAX_OCTETS / (1024 * 1024)} Mo).`);
+      return;
+    }
     setEnvoi(true);
     setMessage("");
     try {
-      const form = new FormData(e.target);
-      const res = await fetch("/api/profil", { method: "PATCH", body: form });
+      let cheminStorage = null;
+      if (photo) {
+        // La photo part directement vers Supabase Storage (URL signée),
+        // sans passer par notre serveur - Vercel refuserait toute requête
+        // de plus de ~4,5 Mo sur ses fonctions serverless.
+        const resPrep = await fetch("/api/profil/upload-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nomFichier: photo.name, tailleOctets: photo.size }),
+        });
+        const dataPrep = await resPrep.json();
+        if (dataPrep.error) {
+          setMessage(dataPrep.error);
+          return;
+        }
+        const { error: uploadErr } = await supabaseClient.storage
+          .from(BUCKET_FICHIERS)
+          .uploadToSignedUrl(dataPrep.chemin, dataPrep.token, photo);
+        if (uploadErr) {
+          setMessage("Échec de l'envoi de la photo.");
+          return;
+        }
+        cheminStorage = dataPrep.chemin;
+      }
+
+      const res = await fetch("/api/profil", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prenom, nom, cheminStorage }),
+      });
       const data = await res.json();
       if (data.error) {
         setMessage(data.error);

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { formaterDateLongue } from "@/lib/calendrier";
+import { supabaseClient } from "@/lib/supabaseClient";
+import { BUCKET_FICHIERS, TAILLE_MAX_OCTETS } from "@/lib/fichiers";
 
 const ICONES = { pdf: "📄", image: "🖼️", lien: "🔗", audio: "🎧" };
 
@@ -16,14 +18,45 @@ export default function SeanceEleve({ seance, devoirInitial, ouvertParDefaut, en
     e.preventDefault();
     const fichier = e.target.elements.fichier.files[0];
     if (!fichier) return;
+    if (fichier.size > TAILLE_MAX_OCTETS) {
+      setErreur(`Le fichier dépasse la taille maximale autorisée (${TAILLE_MAX_OCTETS / (1024 * 1024)} Mo).`);
+      return;
+    }
     setEnvoi(true);
     setErreur("");
     try {
-      const form = new FormData();
-      form.append("seanceId", seance.id);
-      form.append("date", seance.date);
-      form.append("fichier", fichier);
-      const res = await fetch("/api/devoirs", { method: "POST", body: form });
+      // Le fichier part directement vers Supabase Storage (URL signée),
+      // sans passer par notre serveur - Vercel refuserait toute requête de
+      // plus de ~4,5 Mo sur ses fonctions serverless (important pour les
+      // devoirs oraux enregistrés).
+      const resPrep = await fetch("/api/devoirs/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ seanceId: seance.id, nomFichier: fichier.name, tailleOctets: fichier.size }),
+      });
+      const dataPrep = await resPrep.json();
+      if (dataPrep.error) {
+        setErreur(dataPrep.error);
+        return;
+      }
+      const { error: uploadErr } = await supabaseClient.storage
+        .from(BUCKET_FICHIERS)
+        .uploadToSignedUrl(dataPrep.chemin, dataPrep.token, fichier);
+      if (uploadErr) {
+        setErreur("Échec de l'envoi du fichier.");
+        return;
+      }
+
+      const res = await fetch("/api/devoirs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          seanceId: seance.id,
+          date: seance.date,
+          fichierNom: fichier.name,
+          cheminStorage: dataPrep.chemin,
+        }),
+      });
       const data = await res.json();
       if (data.error) {
         setErreur(data.error);

@@ -2,11 +2,12 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getEleveConnecte } from "@/lib/eleves";
 import { getProfConnecte } from "@/lib/profs";
-import { BUCKET_FICHIERS, TAILLE_MAX_OCTETS, cheminAvatar } from "@/lib/fichiers";
 
 // Met à jour le profil (prénom, nom, photo) de la personne connectée —
 // élève ou prof, peu importe, on détecte via la session active. Chacun ne
-// peut modifier que son propre profil.
+// peut modifier que son propre profil. La photo a déjà été envoyée
+// directement à Supabase Storage via une URL signée (voir
+// POST /api/profil/upload-url) avant cet appel.
 export async function PATCH(request) {
   if (!supabaseAdmin) {
     return NextResponse.json({ error: "Supabase n'est pas configuré." }, { status: 500 });
@@ -19,36 +20,12 @@ export async function PATCH(request) {
   }
   const table = eleve ? "eleves" : "profs";
 
-  const form = await request.formData();
-  const prenom = form.get("prenom")?.toString().trim();
-  const nom = form.get("nom")?.toString().trim();
-  const photo = form.get("photo");
+  const { prenom, nom, cheminStorage } = await request.json();
 
   const patch = {};
-  if (prenom) patch.prenom = prenom;
-  if (nom) patch.nom = nom;
-
-  if (photo && typeof photo !== "string" && photo.size > 0) {
-    if (!photo.type.startsWith("image/")) {
-      return NextResponse.json({ error: "La photo doit être une image." }, { status: 400 });
-    }
-    if (photo.size > TAILLE_MAX_OCTETS) {
-      return NextResponse.json(
-        { error: `La photo dépasse la taille maximale autorisée (${TAILLE_MAX_OCTETS / (1024 * 1024)} Mo).` },
-        { status: 400 }
-      );
-    }
-    const cheminStorage = cheminAvatar(identite.identifiant, photo.name);
-    const buffer = Buffer.from(await photo.arrayBuffer());
-    const { error: uploadError } = await supabaseAdmin.storage
-      .from(BUCKET_FICHIERS)
-      .upload(cheminStorage, buffer, { contentType: photo.type });
-    if (uploadError) {
-      console.error("Échec envoi photo profil:", uploadError);
-      return NextResponse.json({ error: `Échec de l'envoi de la photo : ${uploadError.message}` }, { status: 500 });
-    }
-    patch.photo_chemin = cheminStorage;
-  }
+  if (prenom?.trim()) patch.prenom = prenom.trim();
+  if (nom?.trim()) patch.nom = nom.trim();
+  if (cheminStorage) patch.photo_chemin = cheminStorage;
 
   if (Object.keys(patch).length === 0) {
     return NextResponse.json({ error: "Rien à enregistrer." }, { status: 400 });
