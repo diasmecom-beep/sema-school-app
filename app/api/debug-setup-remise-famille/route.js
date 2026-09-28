@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
+// Empêche Next.js de tenter d'exécuter cette route pendant le build (elle a
+// des effets de bord - création de ressources Stripe - qui ne doivent
+// jamais se déclencher ailleurs qu'à la demande, une fois déployée).
+export const dynamic = "force-dynamic";
+
 // Route de diagnostic TEMPORAIRE - crée les coupons + codes promo Stripe
 // pour la remise famille (5% Trimestriel, 10% Annuel), et active les codes
 // promo sur les 2 liens de paiement concernés. À supprimer après exécution.
