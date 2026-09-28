@@ -80,6 +80,21 @@ export default function TarifsPage({ searchParams }) {
             </div>
           ))}
         </div>
+
+        <div className="mt-10 max-w-2xl mx-auto bg-cream rounded-2xl px-6 py-5 text-sm text-ink/70">
+          <p>
+            <span className="font-semibold text-ink">👨‍👩‍👧‍👦 Réduction famille</span> - un deuxième cours au sein
+            de la même famille ? <strong>-5% sur l&rsquo;abonnement Trimestriel</strong> et{" "}
+            <strong>-10% sur l&rsquo;abonnement Annuel</strong>.
+          </p>
+          <p className="mt-1">
+            Écris-nous à{" "}
+            <a href="mailto:semalangues@gmail.com" className="text-terracotta-600 underline">
+              semalangues@gmail.com
+            </a>{" "}
+            avant de t&rsquo;inscrire pour recevoir ton code de réduction.
+          </p>
+        </div>
       </section>
       <Footer />
     </div>
