@@ -10,7 +10,7 @@ export async function GET() {
     return NextResponse.json({ error: "STRIPE_SECRET_KEY manquant." }, { status: 500 });
   }
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-  const ids = ["aVmDNHHU", "jHbKs0bs"];
+  const ids = ["xjh4swod"];
   const deleted = [];
   for (const id of ids) {
     deleted.push(await stripe.coupons.del(id));

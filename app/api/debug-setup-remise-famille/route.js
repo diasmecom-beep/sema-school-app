@@ -42,7 +42,7 @@ export async function GET() {
     });
     resultats.couponTrimestriel = couponTrimestriel.id;
     const promoTrimestriel = await stripe.promotionCodes.create({
-      coupon: couponTrimestriel.id,
+      promotion: { type: "coupon", coupon: couponTrimestriel.id },
       code: "FAMILLE5",
     });
     await stripe.paymentLinks.update(plTrimestriel.id, { allow_promotion_codes: true });
@@ -56,7 +56,7 @@ export async function GET() {
     });
     resultats.couponAnnuel = couponAnnuel.id;
     const promoAnnuel = await stripe.promotionCodes.create({
-      coupon: couponAnnuel.id,
+      promotion: { type: "coupon", coupon: couponAnnuel.id },
       code: "FAMILLE10",
     });
     await stripe.paymentLinks.update(plAnnuel.id, { allow_promotion_codes: true });
