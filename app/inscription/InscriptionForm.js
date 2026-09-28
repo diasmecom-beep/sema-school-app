@@ -24,14 +24,27 @@ export default function InscriptionForm() {
     email: "",
     paysResidence: "",
     groupeId: searchParams.get("groupe") || "",
+    groupeId2: "",
     attentes: "",
     connuVia: "",
   });
+  const [deuxiemeLangue, setDeuxiemeLangue] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  const remisePromo =
+    formuleId === "trimestriel" ? "5%" : formuleId === "annuel" ? "10%" : null;
+
   function update(field, value) {
-    setForm((f) => ({ ...f, [field]: value }));
+    setForm((f) => {
+      const next = { ...f, [field]: value };
+      // Évite de laisser la 2e langue sélectionnée en doublon si la
+      // personne change son premier cours pour la même langue/niveau.
+      if (field === "groupeId" && value === f.groupeId2) {
+        next.groupeId2 = "";
+      }
+      return next;
+    });
   }
 
   async function envoyer() {
@@ -51,6 +64,10 @@ export default function InscriptionForm() {
       setErrorMsg("Merci de choisir un cours.");
       return;
     }
+    if (deuxiemeLangue && !form.groupeId2) {
+      setErrorMsg("Merci de choisir ta deuxième langue, ou retire l'option si tu n'en veux pas.");
+      return;
+    }
     if (!form.attentes) {
       setErrorMsg("Merci d'indiquer tes attentes.");
       return;
@@ -65,7 +82,11 @@ export default function InscriptionForm() {
       const res = await fetch("/api/inscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, formuleId }),
+        body: JSON.stringify({
+          ...form,
+          groupeId2: deuxiemeLangue ? form.groupeId2 : "",
+          formuleId,
+        }),
       });
       const data = await res.json();
       if (data.error) {
@@ -174,8 +195,58 @@ export default function InscriptionForm() {
               </label>
             ))}
           </div>
-          <p className="text-xs italic text-ink/50 mt-2">Un cours par formulaire.</p>
+
+          {!deuxiemeLangue && (
+            <button
+              type="button"
+              onClick={() => setDeuxiemeLangue(true)}
+              className="mt-3 text-sm font-semibold text-terracotta-600 underline"
+            >
+              + Ajouter une langue
+            </button>
+          )}
         </fieldset>
+
+        {deuxiemeLangue && (
+          <fieldset>
+            <legend className={labelClass}>Deuxième langue</legend>
+
+            <p className="bg-sage-800/10 text-sage-900 text-xs rounded-lg px-4 py-3 mb-3">
+              👨‍👩‍👧‍👦 Offre promotionnelle : -5% sur l&rsquo;abonnement Trimestriel et -10% sur
+              l&rsquo;abonnement Annuel pour cette deuxième langue.
+              {remisePromo
+                ? ` Avec la formule ${formuleChoisie?.nom}, tu profites de -${remisePromo}.`
+                : " Choisis une formule Trimestrielle ou Annuelle pour en profiter."}
+              {" "}Le code de réduction te sera indiqué avec le lien de paiement, une fois ton
+              premier cours réglé.
+            </p>
+
+            <div className="space-y-2">
+              {GROUPES.filter((g) => g.id !== form.groupeId).map((g) => (
+                <label key={g.id} className="flex items-center gap-2 text-ink text-sm">
+                  <input
+                    type="radio"
+                    name="groupeId2"
+                    checked={form.groupeId2 === g.id}
+                    onChange={() => update("groupeId2", g.id)}
+                  />
+                  {g.langue} {g.niveau}
+                </label>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setDeuxiemeLangue(false);
+                update("groupeId2", "");
+              }}
+              className="mt-3 text-xs text-ink/50 underline"
+            >
+              Retirer cette deuxième langue
+            </button>
+          </fieldset>
+        )}
 
         <fieldset>
           <legend className={labelClass}>Quelles sont vos attentes ? *</legend>

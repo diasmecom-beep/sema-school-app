@@ -66,6 +66,33 @@ export default async function MerciPage({ searchParams }) {
           </a>
           .
         </p>
+
+        {resultat?.deuxiemeLangue && (
+          <div className="bg-sage-800/10 text-left rounded-2xl px-6 py-5 mb-10">
+            <p className="font-semibold text-ink mb-2">
+              👨‍👩‍👧‍👦 N&rsquo;oublie pas ta 2ᵉ langue : {resultat.deuxiemeLangue.coursLabel}
+            </p>
+            <p className="text-sm text-ink/70 mb-4">
+              {resultat.deuxiemeLangue.codePromo
+                ? `Il ne reste plus qu'à régler ce deuxième cours - utilise le code ${resultat.deuxiemeLangue.codePromo} au moment du paiement pour profiter de ta réduction famille.`
+                : "Il ne reste plus qu'à régler ce deuxième cours."}
+            </p>
+            <a
+              href={(() => {
+                const url = new URL(resultat.deuxiemeLangue.stripeLink);
+                url.searchParams.set("client_reference_id", resultat.deuxiemeLangue.id);
+                if (resultat.deuxiemeLangue.email) {
+                  url.searchParams.set("prefilled_email", resultat.deuxiemeLangue.email);
+                }
+                return url.toString();
+              })()}
+              className="inline-block bg-terracotta-600 text-cream font-semibold rounded-full px-6 py-3 hover:opacity-90 transition"
+            >
+              Payer ma 2ᵉ langue ({resultat.deuxiemeLangue.formuleNom})
+            </a>
+          </div>
+        )}
+
         <a
           href="/"
           className="inline-block bg-sage-800 text-cream font-semibold rounded-full px-8 py-3 hover:bg-sage-900 transition"
