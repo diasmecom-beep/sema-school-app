@@ -33,31 +33,37 @@ export async function GET() {
 
   const resultats = {};
 
-  // Trimestriel - 5%
-  const couponTrimestriel = await stripe.coupons.create({
-    percent_off: 5,
-    duration: "once",
-    name: "Remise famille - 2e cours (Trimestriel)",
-  });
-  const promoTrimestriel = await stripe.promotionCodes.create({
-    coupon: couponTrimestriel.id,
-    code: "FAMILLE5",
-  });
-  await stripe.paymentLinks.update(plTrimestriel.id, { allow_promotion_codes: true });
-  resultats.trimestriel = { coupon: couponTrimestriel.id, code: promoTrimestriel.code };
+  try {
+    // Trimestriel - 5%
+    const couponTrimestriel = await stripe.coupons.create({
+      percent_off: 5,
+      duration: "once",
+      name: "Remise famille - 2e cours (Trimestriel)",
+    });
+    resultats.couponTrimestriel = couponTrimestriel.id;
+    const promoTrimestriel = await stripe.promotionCodes.create({
+      coupon: couponTrimestriel.id,
+      code: "FAMILLE5",
+    });
+    await stripe.paymentLinks.update(plTrimestriel.id, { allow_promotion_codes: true });
+    resultats.trimestriel = { coupon: couponTrimestriel.id, code: promoTrimestriel.code };
 
-  // Annuel - 10%
-  const couponAnnuel = await stripe.coupons.create({
-    percent_off: 10,
-    duration: "once",
-    name: "Remise famille - 2e cours (Annuel)",
-  });
-  const promoAnnuel = await stripe.promotionCodes.create({
-    coupon: couponAnnuel.id,
-    code: "FAMILLE10",
-  });
-  await stripe.paymentLinks.update(plAnnuel.id, { allow_promotion_codes: true });
-  resultats.annuel = { coupon: couponAnnuel.id, code: promoAnnuel.code };
+    // Annuel - 10%
+    const couponAnnuel = await stripe.coupons.create({
+      percent_off: 10,
+      duration: "once",
+      name: "Remise famille - 2e cours (Annuel)",
+    });
+    resultats.couponAnnuel = couponAnnuel.id;
+    const promoAnnuel = await stripe.promotionCodes.create({
+      coupon: couponAnnuel.id,
+      code: "FAMILLE10",
+    });
+    await stripe.paymentLinks.update(plAnnuel.id, { allow_promotion_codes: true });
+    resultats.annuel = { coupon: couponAnnuel.id, code: promoAnnuel.code };
+  } catch (err) {
+    return NextResponse.json({ error: err.message, type: err.type, resultatsPartiels: resultats }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true, resultats });
 }
