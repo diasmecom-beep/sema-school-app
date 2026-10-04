@@ -42,6 +42,12 @@ export async function GET(request) {
     const dateEligible = ajouterJoursOuvrables(new Date(inscription.created_at), JOURS_OUVRABLES_AVANT_RELANCE);
     if (maintenant < dateEligible) continue;
 
+    // client_reference_id permet à /merci de rattacher le paiement à cette
+    // inscription et de créer le compte élève automatiquement.
+    const lienPaiement = new URL(formule.stripeLink);
+    lienPaiement.searchParams.set("client_reference_id", inscription.id);
+    lienPaiement.searchParams.set("prefilled_email", inscription.email);
+
     const groupe = GROUPES.find((g) => g.id === inscription.groupe_id);
     const { envoye, envoyeAdmin } = await envoyerRelancePaiement({
       prenom: inscription.prenom,
@@ -50,7 +56,7 @@ export async function GET(request) {
       coursLabel: groupe ? `${groupe.langue}, niveau ${groupe.niveau}` : inscription.groupe_id,
       formuleNom: formule.nom,
       formulePrix: formule.prix,
-      stripeLink: formule.stripeLink,
+      stripeLink: lienPaiement.toString(),
     });
 
     await supabaseAdmin
