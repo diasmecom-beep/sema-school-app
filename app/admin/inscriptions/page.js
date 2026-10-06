@@ -9,6 +9,13 @@ import Footer from "../../components/Footer";
 const STATUT_STYLE = {
   en_attente: "bg-cream text-ink/70",
   payee: "bg-sage-800 text-cream",
+  annulee: "bg-ink/10 text-ink/50 line-through",
+};
+
+const STATUT_LIBELLE = {
+  en_attente: "En attente",
+  payee: "Payée",
+  annulee: "Annulée",
 };
 
 function libelleGroupe(groupeId) {
@@ -91,7 +98,7 @@ export default async function AdminInscriptionsPage() {
                           STATUT_STYLE[i.statut] || "bg-cream text-ink/70"
                         }`}
                       >
-                        {i.statut === "payee" ? "Payée" : "En attente"}
+                        {STATUT_LIBELLE[i.statut] || "En attente"}
                       </span>
                     </td>
                   </tr>
