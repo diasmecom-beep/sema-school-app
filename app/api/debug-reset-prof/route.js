@@ -16,20 +16,20 @@ export async function GET(request) {
     return NextResponse.json({ error: "Configuration manquante." }, { status: 500 });
   }
 
-  const { data: prof } = await supabaseAdmin
+  const { data: prof, error: erreurLecture } = await supabaseAdmin
     .from("profs")
-    .select("id, identifiant, nom, groupes")
+    .select("identifiant, nom, groupes")
     .eq("identifiant", "PROF-YKXQVH")
     .maybeSingle();
   if (!prof) {
-    return NextResponse.json({ error: "Prof introuvable." }, { status: 404 });
+    return NextResponse.json({ error: "Prof introuvable.", detail: erreurLecture?.message || null }, { status: 404 });
   }
 
   const codeAcces = generateCodeAcces();
   const { error } = await supabaseAdmin
     .from("profs")
     .update({ code_acces_hash: hashCode(codeAcces) })
-    .eq("id", prof.id);
+    .eq("identifiant", prof.identifiant);
   if (error) {
     return NextResponse.json({ error: "Mise à jour impossible." }, { status: 500 });
   }
