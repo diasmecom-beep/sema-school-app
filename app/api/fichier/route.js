@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { getEleveConnecte } from "@/lib/eleves";
+import { getEleveConnecte, eleveAAccesGroupe } from "@/lib/eleves";
 import { getProfConnecte } from "@/lib/profs";
 import { BUCKET_FICHIERS, groupeIdDepuisSeanceId, seanceIdDepuisChemin } from "@/lib/fichiers";
 
@@ -35,7 +35,7 @@ export async function GET(request) {
 
     if (prof && (prof.groupes.includes(groupeId) || prof.groupes.includes("admin-all"))) {
       autorise = true;
-    } else if (eleve && (eleve.groupe_id === groupeId || eleve.groupe_id === "admin-all")) {
+    } else if (eleve && eleveAAccesGroupe(eleve, groupeId)) {
       // Un devoir n'est visible par un élève que si c'est le sien.
       const estDevoir = chemin.startsWith("devoirs/");
       if (!estDevoir || chemin.includes(`/${eleve.identifiant}/`)) {

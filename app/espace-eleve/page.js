@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import { getEleveConnecte } from "@/lib/eleves";
+import Link from "next/link";
+import { getEleveConnecte, groupesDeEleve } from "@/lib/eleves";
 import { getGroupeAvecZoom, getTousLesGroupesAvecZoom } from "@/lib/groupesZoom";
 import { listerSeancesGroupe, listerDevoirsGroupe } from "@/lib/seances";
 import SeanceEleve from "../components/SeanceEleve";
@@ -11,17 +12,22 @@ import Avatar from "../components/Avatar";
 import MembresGroupe from "../components/MembresGroupe";
 import { salutationPourLangue } from "@/lib/salutations";
 
-export default async function EspaceElevePage() {
+export default async function EspaceElevePage({ searchParams }) {
   const eleve = await getEleveConnecte();
   if (!eleve) {
     redirect("/connexion?next=/espace-eleve");
   }
 
   const isAdmin = eleve.groupe_id === "admin-all";
-  const groupe = isAdmin ? null : getGroupeAvecZoom(eleve.groupe_id);
+  // Un compte peut suivre deux cours : ?cours=<groupe> choisit celui qu'on
+  // affiche (le premier par défaut).
+  const mesGroupes = isAdmin ? [] : groupesDeEleve(eleve);
+  const coursDemande = searchParams?.cours;
+  const idGroupeEleve = mesGroupes.includes(coursDemande) ? coursDemande : mesGroupes[0];
+  const groupe = isAdmin ? null : getGroupeAvecZoom(idGroupeEleve);
   const tousLesGroupes = isAdmin ? getTousLesGroupesAvecZoom() : null;
 
-  const groupeAffiche = isAdmin ? tousLesGroupes?.[0]?.id : eleve.groupe_id;
+  const groupeAffiche = isAdmin ? tousLesGroupes?.[0]?.id : idGroupeEleve;
   const [seances, devoirsParSeance] = groupeAffiche
     ? await Promise.all([
         listerSeancesGroupe(groupeAffiche),
@@ -65,8 +71,28 @@ export default async function EspaceElevePage() {
         <div className="grid lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2">
             <h1 className="font-display font-extrabold text-3xl text-ink mb-8">
-              {isAdmin ? "Tous les cours" : "Mon cours"}
+              {isAdmin ? "Tous les cours" : mesGroupes.length > 1 ? "Mes cours" : "Mon cours"}
             </h1>
+
+            {mesGroupes.length > 1 && (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {mesGroupes.map((id) => {
+                  const g = getGroupeAvecZoom(id);
+                  const actif = id === idGroupeEleve;
+                  return (
+                    <Link
+                      key={id}
+                      href={`/espace-eleve?cours=${id}`}
+                      className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
+                        actif ? "bg-sage-800 text-cream" : "bg-white border border-ink/15 text-ink/70 hover:text-ink"
+                      }`}
+                    >
+                      {g ? `${g.langue} - ${g.niveau}` : id}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
 
             {isAdmin ? (
               <div className="space-y-4 mb-12">

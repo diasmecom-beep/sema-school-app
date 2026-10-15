@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { getEleveConnecte } from "@/lib/eleves";
+import { getEleveConnecte, eleveAAccesGroupe } from "@/lib/eleves";
 import { assurerSeance } from "@/lib/seances";
 import { groupeIdDepuisSeanceId } from "@/lib/fichiers";
 
@@ -24,7 +24,7 @@ export async function POST(request) {
   }
 
   const groupeId = groupeIdDepuisSeanceId(seanceId);
-  if (eleve.groupe_id !== groupeId && eleve.groupe_id !== "admin-all") {
+  if (!eleveAAccesGroupe(eleve, groupeId)) {
     return NextResponse.json({ error: "Ce n'est pas ton groupe." }, { status: 403 });
   }
 

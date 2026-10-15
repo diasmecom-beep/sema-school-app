@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { getEleveConnecte } from "@/lib/eleves";
+import { getEleveConnecte, eleveAAccesGroupe } from "@/lib/eleves";
 import { getProfConnecte } from "@/lib/profs";
 import { listerMembresGroupe } from "@/lib/groupeMembres";
 
@@ -10,7 +10,7 @@ async function identifierAuteur(groupeId) {
   if (prof && (prof.groupes.includes(groupeId) || prof.groupes.includes("admin-all"))) {
     return { type: "prof", identifiant: prof.identifiant, nom: prof.nom };
   }
-  if (eleve && (eleve.groupe_id === groupeId || eleve.groupe_id === "admin-all")) {
+  if (eleve && eleveAAccesGroupe(eleve, groupeId)) {
     return { type: "eleve", identifiant: eleve.identifiant, nom: eleve.nom };
   }
   return null;

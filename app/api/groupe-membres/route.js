@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getEleveConnecte } from "@/lib/eleves";
+import { getEleveConnecte, eleveAAccesGroupe } from "@/lib/eleves";
 import { getProfConnecte } from "@/lib/profs";
 import { listerMembresGroupe } from "@/lib/groupeMembres";
 
@@ -14,7 +14,7 @@ export async function GET(request) {
 
   const autorise =
     (prof && (prof.groupes.includes(groupeId) || prof.groupes.includes("admin-all"))) ||
-    (eleve && (eleve.groupe_id === groupeId || eleve.groupe_id === "admin-all"));
+    (eleve && eleveAAccesGroupe(eleve, groupeId));
 
   if (!autorise) return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
 

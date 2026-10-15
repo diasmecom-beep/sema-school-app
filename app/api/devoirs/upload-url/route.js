@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { getEleveConnecte } from "@/lib/eleves";
+import { getEleveConnecte, eleveAAccesGroupe } from "@/lib/eleves";
 import { BUCKET_FICHIERS, TAILLE_MAX_OCTETS, cheminDevoir, groupeIdDepuisSeanceId } from "@/lib/fichiers";
 
 // Étape 1 de la remise d'un devoir : génère une URL signée pour que le
@@ -30,7 +30,7 @@ export async function POST(request) {
   }
 
   const groupeId = groupeIdDepuisSeanceId(seanceId);
-  if (eleve.groupe_id !== groupeId && eleve.groupe_id !== "admin-all") {
+  if (!eleveAAccesGroupe(eleve, groupeId)) {
     return NextResponse.json({ error: "Ce n'est pas ton groupe." }, { status: 403 });
   }
 
