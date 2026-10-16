@@ -43,6 +43,14 @@ export default async function MerciPage({ searchParams }) {
           </p>
         )}
 
+        {resultat?.statut === "ok_deuxieme_cours" && (
+          <p className="text-ink/70 mb-3">
+            Ton cours <strong>{resultat.coursLabel}</strong> a été ajouté à ton compte existant
+            (identifiant : <strong>{resultat.identifiant}</strong>). Connecte-toi avec tes identifiants
+            habituels : tu trouveras un onglet par cours dans ton espace élève.
+          </p>
+        )}
+
         {resultat?.statut === "deja_traite" && (
           <p className="text-ink/70 mb-3">
             Tes identifiants de connexion t&rsquo;ont déjà été envoyés par

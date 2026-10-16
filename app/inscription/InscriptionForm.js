@@ -218,7 +218,7 @@ export default function InscriptionForm() {
                 ? ` Avec la formule ${formuleChoisie?.nom}, tu profites de -${remisePromo}.`
                 : " Choisis une formule Trimestrielle ou Annuelle pour en profiter."}
               {" "}Le code de réduction te sera indiqué avec le lien de paiement, une fois ton
-              premier cours réglé.
+              premier cours réglé. Tes deux cours seront accessibles depuis un seul et même compte.
             </p>
 
             <div className="space-y-2">
