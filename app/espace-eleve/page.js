@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getEleveConnecte, groupesDeEleve } from "@/lib/eleves";
-import { getGroupeAvecZoom, getTousLesGroupesAvecZoom } from "@/lib/groupesZoom";
+import { getGroupeAvecZoom } from "@/lib/groupesZoom";
+import { GROUPES } from "@/lib/content";
 import { listerSeancesGroupe, listerDevoirsGroupe } from "@/lib/seances";
 import SeanceEleve from "../components/SeanceEleve";
 import Chat from "../components/Chat";
@@ -22,18 +23,18 @@ export default async function EspaceElevePage({ searchParams }) {
 
   const isAdmin = eleve.groupe_id === "admin-all";
   // Un compte peut suivre deux cours : ?cours=<groupe> choisit celui qu'on
-  // affiche (le premier par défaut).
-  const mesGroupes = isAdmin ? [] : groupesDeEleve(eleve);
+  // affiche (le premier par défaut). Un compte admin peut ouvrir n'importe
+  // quel cours et voit exactement ce que voient les élèves de ce groupe.
+  const mesGroupes = isAdmin ? GROUPES.map((g) => g.id) : groupesDeEleve(eleve);
   const coursDemande = searchParams?.cours;
   const idGroupeEleve = mesGroupes.includes(coursDemande) ? coursDemande : mesGroupes[0];
-  const groupe = isAdmin ? null : getGroupeAvecZoom(idGroupeEleve);
-  const tousLesGroupes = isAdmin ? getTousLesGroupesAvecZoom() : null;
+  const groupe = getGroupeAvecZoom(idGroupeEleve);
 
-  const groupeAffiche = isAdmin ? tousLesGroupes?.[0]?.id : idGroupeEleve;
+  const groupeAffiche = idGroupeEleve;
   const [seances, devoirsParSeance, ressourcesCours] = groupeAffiche
     ? await Promise.all([
         listerSeancesGroupe(groupeAffiche),
-        listerDevoirsGroupe(groupeAffiche, isAdmin ? null : eleve.identifiant),
+        listerDevoirsGroupe(groupeAffiche, eleve.identifiant),
         listerRessourcesCours(groupeAffiche),
       ])
     : [[], new Map(), []];
@@ -74,8 +75,14 @@ export default async function EspaceElevePage({ searchParams }) {
         <div className="grid lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2">
             <h1 className="font-display font-extrabold text-3xl text-ink mb-8">
-              {isAdmin ? "Tous les cours" : mesGroupes.length > 1 ? "Mes cours" : "Mon cours"}
+              {isAdmin ? "Aperçu des cours" : mesGroupes.length > 1 ? "Mes cours" : "Mon cours"}
             </h1>
+
+            {isAdmin && (
+              <p className="bg-sage-800/10 text-sage-900 text-sm rounded-lg px-4 py-3 mb-4">
+                👁️ Aperçu admin : choisis un cours, tu vois exactement ce que voient ses élèves.
+              </p>
+            )}
 
             {mesGroupes.length > 1 && (
               <div className="flex flex-wrap gap-2 mb-6">
@@ -97,43 +104,7 @@ export default async function EspaceElevePage({ searchParams }) {
               </div>
             )}
 
-            {isAdmin ? (
-              <div className="space-y-4 mb-12">
-                {tousLesGroupes.map((g) => (
-                  <div key={g.id} className="bg-sage-800 text-cream rounded-2xl p-6 flex items-center justify-between gap-4 flex-wrap shadow-sm">
-                    <div>
-                      <p className="text-xs uppercase tracking-widest text-cream/70 mb-1">{g.jour}</p>
-                      <p className="font-display font-extrabold text-lg">
-                        {g.langue} - {g.niveau}
-                      </p>
-                      <p className="text-cream/80 text-sm">{g.horaire}</p>
-                    </div>
-                    <div className="shrink-0 flex items-center gap-2">
-                      {g.zoomLink && (
-                        <a
-                          href={g.zoomLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-cream text-sage-900 font-semibold rounded-full px-5 py-2.5 text-sm hover:opacity-90 transition"
-                        >
-                          Zoom
-                        </a>
-                      )}
-                      {g.whatsappLink && (
-                        <a
-                          href={g.whatsappLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-[#25D366] text-white font-semibold rounded-full px-5 py-2.5 text-sm hover:opacity-90 transition"
-                        >
-                          WhatsApp
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : !groupe ? (
+            {!groupe ? (
               <p className="bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3 mb-12">
                 Groupe introuvable - contacte l&rsquo;équipe Sema.
               </p>
