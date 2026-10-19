@@ -10,6 +10,8 @@ import EspaceHeader from "../components/EspaceHeader";
 import Footer from "../components/Footer";
 import Avatar from "../components/Avatar";
 import MembresGroupe from "../components/MembresGroupe";
+import DossierCours from "../components/DossierCours";
+import { listerRessourcesCours } from "@/lib/ressourcesCours";
 import { salutationPourLangue } from "@/lib/salutations";
 
 export default async function EspaceElevePage({ searchParams }) {
@@ -28,12 +30,13 @@ export default async function EspaceElevePage({ searchParams }) {
   const tousLesGroupes = isAdmin ? getTousLesGroupesAvecZoom() : null;
 
   const groupeAffiche = isAdmin ? tousLesGroupes?.[0]?.id : idGroupeEleve;
-  const [seances, devoirsParSeance] = groupeAffiche
+  const [seances, devoirsParSeance, ressourcesCours] = groupeAffiche
     ? await Promise.all([
         listerSeancesGroupe(groupeAffiche),
         listerDevoirsGroupe(groupeAffiche, isAdmin ? null : eleve.identifiant),
+        listerRessourcesCours(groupeAffiche),
       ])
-    : [[], new Map()];
+    : [[], new Map(), []];
 
   // On met en avant le prochain cours (ou le dernier passé, si l'année est
   // terminée) plutôt que d'afficher 30 séances à plat.
@@ -212,6 +215,7 @@ export default async function EspaceElevePage({ searchParams }) {
 
           {groupeAffiche && (
             <div className="lg:sticky lg:top-8">
+              <DossierCours key={groupeAffiche} groupeId={groupeAffiche} ressourcesInitiales={ressourcesCours} />
               <MembresGroupe groupeId={groupeAffiche} />
               <Chat
                 groupeId={groupeAffiche}

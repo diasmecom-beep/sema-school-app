@@ -11,6 +11,8 @@ import EspaceHeader from "../../components/EspaceHeader";
 import Footer from "../../components/Footer";
 import Avatar from "../../components/Avatar";
 import MembresGroupe from "../../components/MembresGroupe";
+import DossierCours from "../../components/DossierCours";
+import { listerRessourcesCours } from "@/lib/ressourcesCours";
 import { salutationPourLangue } from "@/lib/salutations";
 
 export default async function EspaceProfGroupePage({ params }) {
@@ -27,9 +29,10 @@ export default async function EspaceProfGroupePage({ params }) {
   const groupe = getGroupeAvecZoom(params.groupeId);
   if (!groupe) notFound();
 
-  const [seances, devoirsParSeance] = await Promise.all([
+  const [seances, devoirsParSeance, ressourcesCours] = await Promise.all([
     listerSeancesGroupe(params.groupeId),
     listerDevoirsGroupe(params.groupeId),
+    listerRessourcesCours(params.groupeId),
   ]);
 
   // Noms des élèves pour affichage lisible des devoirs reçus.
@@ -152,6 +155,7 @@ export default async function EspaceProfGroupePage({ params }) {
           </div>
 
           <div className="lg:sticky lg:top-8">
+            <DossierCours groupeId={params.groupeId} ressourcesInitiales={ressourcesCours} editable />
             <MembresGroupe groupeId={params.groupeId} />
             <Chat
               groupeId={params.groupeId}
