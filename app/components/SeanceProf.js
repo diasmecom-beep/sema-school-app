@@ -274,10 +274,10 @@ export default function SeanceProf({ seance: seanceInitiale, devoirsInitiaux, ou
             />
           </label>
           <label className="block">
-            <span className="text-xs font-semibold text-ink/60">Lien du replay</span>
+            <span className="text-xs font-semibold text-ink/60">Lien du replay (+ code secret Zoom)</span>
             <input
-              type="url"
-              placeholder="https://..."
+              type="text"
+              placeholder="https://...  Mot de passe: ..."
               value={replayLien}
               onChange={(e) => setReplayLien(e.target.value)}
               className="mt-1 w-full text-sm rounded-lg border border-ink/15 px-3 py-2"

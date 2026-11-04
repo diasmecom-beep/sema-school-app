@@ -7,11 +7,23 @@ import { BUCKET_FICHIERS, TAILLE_MAX_OCTETS } from "@/lib/fichiers";
 
 const ICONES = { pdf: "📄", image: "🖼️", lien: "🔗", audio: "🎧" };
 
+// Le champ « lien du replay » accepte soit un lien seul, soit exactement ce que
+// Zoom copie avec « Copier le lien avec le code secret » :
+// "https://...zoom.us/rec/share/...  Mot de passe: XXXX". On en tire le lien
+// (pour le bouton) et le code (affiché dessous, à saisir sur la page Zoom).
+function analyserReplay(valeur) {
+  const texte = (valeur || "").trim();
+  const lien = texte.match(/https?:\/\/\S+/)?.[0] || texte;
+  const code = texte.match(/(?:mot de passe|passcode|code(?: secret)?)\s*:\s*(\S+)/i)?.[1] || null;
+  return { lien, code };
+}
+
 export default function SeanceEleve({ seance, devoirInitial, ouvertParDefaut, enAvant }) {
   const [devoir, setDevoir] = useState(devoirInitial || null);
   const [envoi, setEnvoi] = useState(false);
   const [erreur, setErreur] = useState("");
 
+  const replay = analyserReplay(seance.replayLien);
   const echeancePassee = seance.echeanceDevoir && new Date(seance.echeanceDevoir) < new Date();
 
   async function soumettreDevoir(e) {
@@ -123,14 +135,22 @@ export default function SeanceEleve({ seance, devoirInitial, ouvertParDefaut, en
         )}
 
         {seance.replayLien && (
-          <a
-            href={seance.replayLien}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm bg-sage-800 text-cream rounded-full px-4 py-2 hover:opacity-90 transition"
-          >
-            ▶️ Revoir le cours
-          </a>
+          <div>
+            <a
+              href={replay.lien}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm bg-sage-800 text-cream rounded-full px-4 py-2 hover:opacity-90 transition"
+            >
+              ▶️ Revoir le cours
+            </a>
+            {replay.code && (
+              <p className="mt-2 text-xs text-ink/60">
+                Si Zoom te le demande, le code secret est :{" "}
+                <span className="font-mono font-semibold text-ink select-all">{replay.code}</span>
+              </p>
+            )}
+          </div>
         )}
 
         <div className="pt-2 border-t border-ink/5">
