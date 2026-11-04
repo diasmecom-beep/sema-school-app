@@ -21,11 +21,6 @@ const POPUPS = [
     alt: "Congé d'automne - reprise des cours le lundi 26 octobre, inscriptions toujours ouvertes",
     jusquAu: "2026-10-26",
   },
-  {
-    cle: "sema-popup-inscription-vu",
-    image: "/images/flyer-recto.jpg",
-    alt: "Flyer Sema - rentrée le 5 octobre",
-  },
 ];
 
 function aEteVu(cle) {

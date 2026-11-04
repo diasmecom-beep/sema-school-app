@@ -20,8 +20,6 @@ async function boutonConnexion() {
 }
 
 export default async function AnnouncementBar() {
-  const message = "Rentrée le 5 octobre !";
-  const items = Array.from({ length: 6 }, () => message);
   const bouton = await boutonConnexion();
 
   return (
@@ -42,16 +40,6 @@ export default async function AnnouncementBar() {
             <circle cx="1203.5" cy="509.5" r="11" fill="white" className="animate-typing-dot-3" />
           </svg>
         </a>
-
-        <div className="hidden md:block flex-1 overflow-hidden">
-          <div className="flex gap-10 text-sm font-semibold whitespace-nowrap w-max animate-marquee">
-            {[...items, ...items].map((m, i) => (
-              <span key={i} className="flex items-center gap-2">
-                📅 {m}
-              </span>
-            ))}
-          </div>
-        </div>
 
         <div className="shrink-0 flex items-center gap-2 sm:gap-4">
           <a
