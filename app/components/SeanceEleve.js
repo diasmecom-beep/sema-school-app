@@ -2,21 +2,11 @@
 
 import { useState } from "react";
 import { formaterDateLongue } from "@/lib/calendrier";
+import { analyserReplay } from "@/lib/replay";
 import { supabaseClient } from "@/lib/supabaseClient";
 import { BUCKET_FICHIERS, TAILLE_MAX_OCTETS } from "@/lib/fichiers";
 
 const ICONES = { pdf: "📄", image: "🖼️", lien: "🔗", audio: "🎧" };
-
-// Le champ « lien du replay » accepte soit un lien seul, soit exactement ce que
-// Zoom copie avec « Copier le lien avec le code secret » :
-// "https://...zoom.us/rec/share/...  Mot de passe: XXXX". On en tire le lien
-// (pour le bouton) et le code (affiché dessous, à saisir sur la page Zoom).
-function analyserReplay(valeur) {
-  const texte = (valeur || "").trim();
-  const lien = texte.match(/https?:\/\/\S+/)?.[0] || texte;
-  const code = texte.match(/(?:mot de passe|passcode|code(?: secret)?)\s*:\s*(\S+)/i)?.[1] || null;
-  return { lien, code };
-}
 
 export default function SeanceEleve({ seance, devoirInitial, ouvertParDefaut, enAvant }) {
   const [devoir, setDevoir] = useState(devoirInitial || null);

@@ -14,6 +14,8 @@ import MembresGroupe from "../components/MembresGroupe";
 import DossierCours from "../components/DossierCours";
 import { listerRessourcesCours } from "@/lib/ressourcesCours";
 import { salutationPourLangue } from "@/lib/salutations";
+import { analyserReplay } from "@/lib/replay";
+import { formaterDateLongue } from "@/lib/calendrier";
 
 export default async function EspaceElevePage({ searchParams }) {
   const eleve = await getEleveConnecte();
@@ -46,6 +48,8 @@ export default async function EspaceElevePage({ searchParams }) {
   const indexEnAvant = indexProchaine === -1 ? seances.length - 1 : indexProchaine;
   const seanceEnAvant = seances[indexEnAvant];
   const autresSeances = seances.filter((_, i) => i !== indexEnAvant);
+  // Tous les replays disponibles, du plus récent au plus ancien.
+  const replays = seances.filter((s) => s.replayLien && s.date <= aujourdhui).reverse();
 
   const salutation = isAdmin ? "Bonjour" : salutationPourLangue(groupe?.langue);
   const prenomAffiche = eleve.prenom || eleve.nom;
@@ -145,6 +149,41 @@ export default async function EspaceElevePage({ searchParams }) {
 
             {groupeAffiche && (
               <>
+                {replays.length > 0 && (
+                  <div className="mb-10">
+                    <h2 className="font-display font-extrabold text-xl text-ink mb-4">▶️ Replays des cours</h2>
+                    <ul className="space-y-2">
+                      {replays.map((s) => {
+                        const r = analyserReplay(s.replayLien);
+                        return (
+                          <li
+                            key={s.id}
+                            className="bg-white border border-ink/10 rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-3"
+                          >
+                            <div>
+                              <p className="font-semibold text-ink capitalize">{formaterDateLongue(s.date)}</p>
+                              {r.code && (
+                                <p className="text-xs text-ink/60 mt-0.5">
+                                  Code secret Zoom :{" "}
+                                  <span className="font-mono font-semibold text-ink select-all">{r.code}</span>
+                                </p>
+                              )}
+                            </div>
+                            <a
+                              href={r.lien}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm bg-sage-800 text-cream rounded-full px-4 py-2 hover:opacity-90 transition"
+                            >
+                              ▶️ Revoir le cours
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
+
                 <h2 className="font-display font-extrabold text-xl text-ink mb-4">📁 Mes fichiers &amp; devoirs</h2>
                 <p className="text-sm text-ink/50 mb-4">
                   Un dossier par date de cours - documents à télécharger, replay, et zone pour remettre ton devoir.
